@@ -28,6 +28,16 @@ Screenshots use dummy data. Regenerate them with `npm run screenshots` — the s
 - **CLI** — everything the web UI does is available from the command line.
 - Dark, smooth UI built with Tailwind CSS. No database, no external services.
 
+## Online version
+
+**[https://omegaskiller.github.io/invoice-generator/](https://omegaskiller.github.io/invoice-generator/)** — runs in your browser, no install, no sign-up.
+
+- Your data (settings, themes, issued invoices) stays in your browser (localStorage). Nothing is sent to a server.
+- PDFs are created through the browser's print dialog: choose "Save as PDF". Bulk issuing prints all invoices as one PDF, one page per invoice.
+- Clearing site data deletes your invoice history. Export a backup regularly from **Settings → Backup**.
+
+The local version (below) writes real PDF files to a folder, builds ZIP archives and has a CLI.
+
 ## Requirements
 
 - Node.js 20+
@@ -86,6 +96,15 @@ The default VAT exemption basis is Art. 113(9) of the VAT Act (supplier not VAT-
 Signature and stamp are not mandatory under Art. 7(1) of the Accountancy Act.
 
 > This tool is not legal advice. Check your invoices with your accountant.
+
+## Development
+
+```bash
+npm run build:static   # builds the browser version into dist/
+npm run screenshots    # regenerates screenshots with dummy data
+```
+
+Every push to `main` deploys `dist/` to GitHub Pages via GitHub Actions.
 
 ## License
 

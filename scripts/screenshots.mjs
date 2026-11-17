@@ -55,6 +55,12 @@ await fs_.evaluate((el) => el.scrollIntoView({ block: 'center' }));
 await wait(300);
 await fs_.screenshot({ path: path.join(OUT, 'themes.png') }); console.log('✓ themes.png');
 
+// social preview (1200x630)
+await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 1 });
+await page.goto(`http://localhost:${PORT}`); await wait(800);
+await page.evaluate(() => { localStorage.setItem('lang', '"bg"'); localStorage.setItem('tab', '"single"'); });
+await page.reload(); await shot('og-image.png');
+
 // full-size invoice render
 await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
 await page.goto(`http://localhost:${PORT}/api/invoices/4/html?lang=bg`); await shot('invoice-bg.png');
