@@ -1,0 +1,19 @@
+{
+  "name": "Генератор на фактури · Invoice Generator",
+  "short_name": "Фактури",
+  "description": "Free online invoice generator for Bulgarian companies: EUR invoices in Bulgarian or English, live preview, bulk monthly invoices and PDF export. Your data never leaves your browser.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "lang": "bg",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

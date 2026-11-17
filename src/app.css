@@ -6,7 +6,7 @@
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
-  src: url(/fonts/inter-latin-wght-normal.woff2) format("woff2");
+  src: url(fonts/inter-latin-wght-normal.woff2) format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212;
 }
 @font-face {
@@ -14,7 +14,7 @@
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
-  src: url(/fonts/inter-cyrillic-wght-normal.woff2) format("woff2");
+  src: url(fonts/inter-cyrillic-wght-normal.woff2) format("woff2");
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
 }
 
@@ -45,3 +45,19 @@ dialog::backdrop { background: rgb(0 0 0 / .6); backdrop-filter: blur(4px); }
 dialog[open] { animation: pop .25s var(--ease-smooth); }
 @keyframes pop { from { opacity: 0; transform: scale(.96); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* footer credit */
+.credit-link { position: relative; display: inline-flex; font-weight: 600; color: var(--color-zinc-200); text-decoration: none; padding-bottom: 2px; }
+.credit-link span { display: inline-block; transition: transform .45s var(--ease-smooth), color .45s var(--ease-smooth); transition-delay: calc(var(--i) * 28ms); }
+.credit-link::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--color-teal-300), var(--color-indigo-400), var(--color-fuchsia-400), var(--color-teal-300));
+  background-size: 300% 100%; transform: scaleX(0); transform-origin: left; transition: transform .5s var(--ease-smooth); }
+.credit-link:hover::after, .credit-link:focus-visible::after { transform: scaleX(1); animation: credit-flow 2.4s linear infinite; }
+.credit-link:hover span, .credit-link:focus-visible span { transform: translateY(-3px); animation: credit-hue 2.4s linear infinite; animation-delay: calc(var(--i) * -120ms); }
+.credit-link:focus-visible { outline: none; }
+@keyframes credit-flow { to { background-position: 300% 0; } }
+@keyframes credit-hue {
+  0%, 100% { color: var(--color-teal-300); }
+  33% { color: var(--color-indigo-300); }
+  66% { color: var(--color-fuchsia-300); }
+}

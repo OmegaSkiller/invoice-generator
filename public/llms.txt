@@ -1,0 +1,22 @@
+# Генератор на фактури (Invoice Generator)
+
+> Free online invoice generator for Bulgarian companies: EUR invoices in Bulgarian or English, live preview, bulk monthly invoices and PDF export. Your data never leaves your browser.
+
+- App: https://omegaskiller.github.io/invoice-generator/
+- Source code (MIT): https://github.com/OmegaSkiller/invoice-generator
+- Author: OmegaSkiller (https://github.com/OmegaSkiller)
+
+## Features
+- Invoices always in euro (€), in Bulgarian (default) or English
+- Live preview, bulk issuing per month, history, colour themes
+- Issue date = 1st of the month, due date = 1st of the next month
+- 10-digit sequential numbering, amount in words, Art. 114 VAT Act requisites
+- Browser version stores data in localStorage and saves PDFs via the print dialog; local Node.js version writes real PDF files and has a CLI
+
+## FAQ (Bulgarian)
+- **Безплатен ли е генераторът на фактури?** Да. Инструментът е напълно безплатен и с отворен код (лиценз MIT). Не изисква регистрация.
+- **Къде се съхраняват моите данни?** Само във Вашия браузър (localStorage). Нищо не се изпраща към сървър. Препоръчваме редовно да експортирате резервно копие от раздел Settings.
+- **Как да запазя фактурата като PDF?** Натиснете „Issue & save PDF“ и изберете „Save as PDF“ (Запази като PDF) в прозореца за печат на браузъра.
+- **Съответстват ли фактурите на българското законодателство?** Фактурите съдържат реквизитите по чл. 114 от ЗДДС: 10-цифрен пореден номер, дата на издаване, данни на доставчика и получателя, данъчна основа, ставка на ДДС, основание за неначисляване на ДДС и сума словом. Проверете ги с Вашия счетоводител.
+- **В каква валута са фактурите?** Винаги в евро (€). По избор може да се покаже и равностойността в лева по фиксирания курс 1 € = 1,95583 лв.
+- **Мога ли да издам фактури за няколко месеца наведнъж?** Да. В раздел Bulk добавете по един ред за всеки месец със сумата и издайте всички фактури наведнъж с поредни номера.
