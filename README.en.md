@@ -6,15 +6,15 @@ A local invoice generator for Bulgarian companies that bill the same client ever
 
 ## Screenshots
 
-![Single invoice with live preview](docs/screenshots/single.png)
+![Single invoice with live preview](docs/screenshots/single-en.png)
 
 | Bulk issuing | History |
 |---|---|
-| ![Bulk issuing](docs/screenshots/bulk.png) | ![History](docs/screenshots/history.png) |
+| ![Bulk issuing](docs/screenshots/bulk-en.png) | ![History](docs/screenshots/history-en.png) |
 
-| Invoice (BG) | Invoice (EN) | Colour themes |
+| Invoice (EN) | Invoice (BG) | Colour themes |
 |---|---|---|
-| ![Bulgarian invoice](docs/screenshots/invoice-bg.png) | ![English invoice](docs/screenshots/invoice-en.png) | ![Colour themes](docs/screenshots/themes.png) |
+| ![English invoice](docs/screenshots/invoice-en.png) | ![Bulgarian invoice](docs/screenshots/invoice-bg.png) | ![Colour themes](docs/screenshots/themes.png) |
 
 Screenshots use dummy data. Regenerate them with `npm run screenshots` — the script uses a temporary dataset and never touches yours.
 

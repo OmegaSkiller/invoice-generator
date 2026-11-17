@@ -17,7 +17,7 @@ fs.writeFileSync(path.join(tmp, 'settings.json'), JSON.stringify({
   outputDir: path.join(tmp, 'output'),
   startNumber: 1,
   defaultAmount: 2450,
-  supplier: { bank: { name: 'Примерна банка АД', iban: 'BG00XXXX00000000000000', bic: 'XXXXBGSF' } },
+  supplier: { bank: { name: 'Example Bank AD', iban: 'BG00XXXX00000000000000', bic: 'XXXXBGSF' } },
   colors: { accent: '#0f766e', background: '#ffffff', text: '#0f172a', muted: '#64748b', line: '#0f172a', panel: '#f8fafc' },
 }));
 
@@ -38,13 +38,16 @@ await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduc
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const shot = async (name) => { await wait(900); await page.screenshot({ path: path.join(OUT, name) }); console.log('✓', name); };
 
-await page.goto(`http://localhost:${PORT}`);
-await page.evaluate(() => { localStorage.clear(); localStorage.setItem('lang', '"bg"'); localStorage.setItem('tab', '"single"');
-  localStorage.setItem('s-month', '"2026-11"'); localStorage.setItem('s-amount', '"2450"');
-  localStorage.setItem('bulkRows', JSON.stringify([{ month: '2026-11', amount: '2450' }, { month: '2026-12', amount: '2600' }, { month: '2027-01', amount: '2380.75' }])); });
-await page.reload(); await shot('single.png');
-await page.click('[data-tab=bulk]'); await shot('bulk.png');
-await page.click('[data-tab=history]'); await shot('history.png');
+for (const lang of ['bg', 'en']) {
+  const sfx = lang === 'bg' ? '' : '-en';
+  await page.goto(`http://localhost:${PORT}`); await wait(800);
+  await page.evaluate((lang) => { localStorage.clear(); localStorage.setItem('lang', JSON.stringify(lang)); localStorage.setItem('tab', '"single"');
+    localStorage.setItem('s-month', '"2026-11"'); localStorage.setItem('s-amount', '"2450"');
+    localStorage.setItem('bulkRows', JSON.stringify([{ month: '2026-11', amount: '2450' }, { month: '2026-12', amount: '2600' }, { month: '2027-01', amount: '2380.75' }])); }, lang);
+  await page.reload(); await shot(`single${sfx}.png`);
+  await page.click('[data-tab=bulk]'); await shot(`bulk${sfx}.png`);
+  await page.click('[data-tab=history]'); await shot(`history${sfx}.png`);
+}
 await page.click('[data-tab=settings]');
 await wait(900);
 const fs_ = await page.evaluateHandle(() => [...document.querySelectorAll('legend')].find((l) => l.textContent.includes('colors')).parentElement);
