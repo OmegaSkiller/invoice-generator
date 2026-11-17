@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { PRESET_THEMES } from './themes.js';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DATA_DIR = path.join(ROOT, 'data');
+export const DATA_DIR = process.env.INVOICE_DATA_DIR ? path.resolve(process.env.INVOICE_DATA_DIR) : path.join(ROOT, 'data');
 const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
 const INVOICES_FILE = path.join(DATA_DIR, 'invoices.json');
 

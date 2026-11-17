@@ -1,7 +1,7 @@
 // Renders a self-contained A4 invoice HTML (fonts inlined) – used for both preview and PDF.
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT, DEFAULT_SETTINGS, BGN_PER_EUR, fmtDate, fmtMoney, showDual } from './core.js';
+import { ROOT, DATA_DIR, DEFAULT_SETTINGS, BGN_PER_EUR, fmtDate, fmtMoney, showDual } from './core.js';
 import { amountInWords } from './words.js';
 
 const L = {
@@ -47,7 +47,7 @@ function fonts() {
 
 function logo() {
   for (const ext of ['svg', 'png', 'jpg', 'jpeg', 'webp']) {
-    const f = path.join(ROOT, 'data', `logo.${ext}`);
+    const f = path.join(DATA_DIR, `logo.${ext}`);
     if (fs.existsSync(f)) {
       const mime = ext === 'svg' ? 'image/svg+xml' : `image/${ext === 'jpg' ? 'jpeg' : ext}`;
       return `<img class="logo" src="data:${mime};base64,${fs.readFileSync(f).toString('base64')}" alt="">`;

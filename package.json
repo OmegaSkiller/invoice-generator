@@ -12,7 +12,8 @@
     "dev:css": "tailwindcss -i ./src/app.css -o ./public/app.css --watch",
     "prestart": "npm run build:css",
     "start": "node server.js",
-    "cli": "node cli.js"
+    "cli": "node cli.js",
+    "screenshots": "node scripts/screenshots.mjs"
   },
   "engines": {
     "node": ">=20"
