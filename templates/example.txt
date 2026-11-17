@@ -1,0 +1,5 @@
+# Bulk template: one invoice per line -> "YYYY-MM amount"
+# Run: node cli.js bulk -f templates/example.txt
+2026-01 1000
+2026-02 1250.50
+2026-03 980,00

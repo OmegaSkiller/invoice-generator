@@ -1,0 +1,11 @@
+node_modules/
+output/
+data/*.json
+data/logo.*
+public/app.css
+.DS_Store
+
+# personal bulk templates (keep only the example)
+templates/*
+!templates/example.txt
+.claude/

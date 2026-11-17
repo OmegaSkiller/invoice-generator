@@ -1,0 +1,47 @@
+@import "tailwindcss";
+@source "../public";
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/inter-latin-wght-normal.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212;
+}
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/inter-cyrillic-wght-normal.woff2) format("woff2");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  :root { color-scheme: dark; }
+  body { font-feature-settings: "cv11" 1, "tnum" 1; }
+  input[type="month"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: .5; cursor: pointer; }
+  ::selection { background: rgb(45 212 191 / .3); }
+}
+
+@utility field { @apply w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none transition duration-200 ease-smooth hover:border-white/20 focus:border-teal-400/60 focus:bg-white/[0.06] focus:ring-4 focus:ring-teal-400/10; }
+@utility label { @apply mb-1.5 block text-xs font-medium tracking-wide text-zinc-400; }
+@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition duration-200 ease-smooth active:scale-[.98] disabled:pointer-events-none disabled:opacity-40; }
+@utility btn-primary { @apply btn bg-teal-400 text-zinc-950 shadow-lg shadow-teal-500/20 hover:bg-teal-300; }
+@utility btn-ghost { @apply btn border border-white/10 bg-white/[0.03] text-zinc-200 hover:border-white/20 hover:bg-white/[0.07]; }
+@utility card { @apply rounded-2xl border border-white/[0.07] bg-zinc-900/60 backdrop-blur-xl; }
+@utility icon-btn { @apply grid size-8 place-items-center rounded-lg text-zinc-400 transition hover:bg-white/10 hover:text-zinc-100; }
+
+.fade-in { animation: fadeIn .35s var(--ease-smooth) both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.tab-panel[hidden] { display: none; }
+dialog::backdrop { background: rgb(0 0 0 / .6); backdrop-filter: blur(4px); }
+dialog[open] { animation: pop .25s var(--ease-smooth); }
+@keyframes pop { from { opacity: 0; transform: scale(.96); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }

@@ -1,0 +1,29 @@
+{
+  "name": "invoice-generator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local invoice generator for Bulgarian companies (EUR, BG/EN, PDF)",
+  "type": "module",
+  "bin": {
+    "invoice": "./cli.js"
+  },
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/app.css -o ./public/app.css --minify",
+    "dev:css": "tailwindcss -i ./src/app.css -o ./public/app.css --watch",
+    "prestart": "npm run build:css",
+    "start": "node server.js",
+    "cli": "node cli.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "puppeteer-core": "^25.18.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.5",
+    "tailwindcss": "^4.3.5"
+  },
+  "license": "MIT"
+}

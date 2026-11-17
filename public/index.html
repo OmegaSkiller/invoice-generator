@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoice Generator</title>
+  <link rel="stylesheet" href="/app.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%232dd4bf'/><text x='16' y='22' font-size='16' text-anchor='middle' font-family='sans-serif' font-weight='700' fill='%2309090b'>€</text></svg>">
+</head>
+<body class="min-h-dvh bg-zinc-950 font-sans text-zinc-100 antialiased">
+  <!-- ambient glow -->
+  <div aria-hidden="true" class="pointer-events-none fixed inset-0 overflow-hidden">
+    <div class="absolute -top-40 left-1/4 size-[36rem] rounded-full bg-teal-500/10 blur-3xl"></div>
+    <div class="absolute -bottom-48 right-0 size-[32rem] rounded-full bg-indigo-500/10 blur-3xl"></div>
+  </div>
+
+  <div class="relative mx-auto flex min-h-dvh max-w-[1500px] flex-col gap-5 p-4 lg:p-6">
+    <!-- header -->
+    <header class="flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-teal-300 to-teal-500 text-lg font-bold text-zinc-950 shadow-lg shadow-teal-500/20">€</div>
+        <div>
+          <h1 class="text-base font-semibold tracking-tight">Invoice Generator</h1>
+          <p class="text-xs text-zinc-500" id="parties">—</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-400">
+          Next № <span id="next-number" class="font-semibold text-zinc-100">—</span>
+        </div>
+        <div class="relative flex rounded-xl border border-white/10 bg-white/[0.03] p-1 text-xs font-semibold" id="lang-toggle" role="radiogroup" aria-label="Invoice language">
+          <span class="seg-indicator absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-lg bg-teal-400 transition-transform duration-300 ease-smooth"></span>
+          <button data-lang="bg" class="relative z-10 w-12 rounded-lg py-1.5 transition-colors" role="radio">BG</button>
+          <button data-lang="en" class="relative z-10 w-12 rounded-lg py-1.5 transition-colors" role="radio">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="grid flex-1 gap-5 lg:grid-cols-[440px_1fr]">
+      <!-- left: controls -->
+      <section class="card flex min-h-0 flex-col">
+        <nav class="relative m-2 grid grid-cols-4 rounded-xl bg-white/[0.03] p-1 text-sm" id="tabs">
+          <span id="tab-indicator" class="absolute inset-y-1 left-1 w-[calc(25%-2px)] rounded-lg bg-white/10 transition-transform duration-300 ease-smooth"></span>
+          <button data-tab="single" class="relative z-10 rounded-lg py-2 font-medium">Single</button>
+          <button data-tab="bulk" class="relative z-10 rounded-lg py-2 font-medium">Bulk</button>
+          <button data-tab="history" class="relative z-10 rounded-lg py-2 font-medium">History</button>
+          <button data-tab="settings" class="relative z-10 rounded-lg py-2 font-medium">Settings</button>
+        </nav>
+
+        <div class="flex-1 overflow-y-auto px-5 pb-5 pt-2">
+          <!-- SINGLE -->
+          <div class="tab-panel fade-in space-y-5" data-panel="single">
+            <div>
+              <label class="label" for="s-month">Month</label>
+              <input id="s-month" type="month" class="field">
+              <p class="mt-2 text-xs text-zinc-500" id="s-dates"></p>
+            </div>
+            <div>
+              <label class="label" for="s-amount">Amount (EUR)</label>
+              <div class="relative">
+                <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-light text-zinc-500">€</span>
+                <input id="s-amount" inputmode="decimal" autocomplete="off" class="field !py-4 !pl-11 text-2xl font-semibold tracking-tight" placeholder="0.00">
+              </div>
+            </div>
+            <div id="s-warnings"></div>
+            <button id="s-issue" class="btn-primary w-full !py-3">
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              Issue &amp; download PDF
+            </button>
+            <p class="text-center text-xs text-zinc-500">Preview is a draft. Issuing assigns the number and saves the PDF.</p>
+          </div>
+
+          <!-- BULK -->
+          <div class="tab-panel fade-in space-y-4" data-panel="bulk" hidden>
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-zinc-400">One invoice per row · dated 1st, due 1st of next month.</p>
+              <button id="b-paste-toggle" class="text-xs font-medium text-teal-300 hover:text-teal-200">Paste list</button>
+            </div>
+            <div id="b-paste" class="hidden space-y-2">
+              <textarea id="b-paste-text" rows="4" class="field font-mono text-xs" placeholder="2026-01 4249.44&#10;2026-02 4100&#10;2026-03, 4300,50"></textarea>
+              <button id="b-paste-apply" class="btn-ghost w-full">Replace rows</button>
+            </div>
+            <ul id="b-rows" class="space-y-2"></ul>
+            <button id="b-add" class="btn-ghost w-full border-dashed">
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Add month
+            </button>
+            <div class="flex items-center justify-between rounded-xl bg-white/[0.03] px-4 py-3 text-sm">
+              <span class="text-zinc-400"><span id="b-count">0</span> invoices</span>
+              <span class="font-semibold" id="b-total">€0.00</span>
+            </div>
+            <div id="b-warnings"></div>
+            <button id="b-issue" class="btn-primary w-full !py-3">Issue all &amp; download ZIP</button>
+          </div>
+
+          <!-- HISTORY -->
+          <div class="tab-panel fade-in" data-panel="history" hidden>
+            <ul id="h-list" class="space-y-2"></ul>
+          </div>
+
+          <!-- SETTINGS -->
+          <div class="tab-panel fade-in" data-panel="settings" hidden>
+            <form id="settings-form" class="space-y-6"></form>
+          </div>
+        </div>
+      </section>
+
+      <!-- right: preview -->
+      <section class="card flex min-h-[70vh] flex-col overflow-hidden">
+        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
+          <div class="flex items-center gap-2 text-sm">
+            <span class="relative flex size-2"><span id="live-dot" class="absolute inline-flex size-full rounded-full bg-teal-400 opacity-0"></span><span class="relative inline-flex size-2 rounded-full bg-teal-400"></span></span>
+            <span class="font-medium">Preview</span>
+            <span id="preview-label" class="text-zinc-500"></span>
+          </div>
+          <div class="flex items-center gap-1" id="preview-actions"></div>
+        </div>
+        <div id="stage" class="relative flex-1 overflow-auto bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:18px_18px] p-6">
+          <div id="sheet" class="overflow-hidden rounded-md bg-white shadow-2xl shadow-black/50 ring-1 ring-white/10 transition-opacity duration-300 ease-smooth" style="width:794px;height:1123px">
+            <iframe id="frame" title="Invoice preview" class="size-full border-0" style="width:794px;height:1123px"></iframe>
+          </div>
+          <div id="empty" class="absolute inset-0 hidden place-items-center text-sm text-zinc-500">Enter a month and amount to preview.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- confirm dialog -->
+  <dialog id="confirm" class="m-auto w-[min(92vw,420px)] rounded-2xl border border-white/10 bg-zinc-900 p-0 text-zinc-100 shadow-2xl">
+    <form method="dialog" class="p-6">
+      <h2 class="text-base font-semibold" id="confirm-title">Issue invoice?</h2>
+      <div class="mt-2 text-sm text-zinc-400" id="confirm-body"></div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button value="cancel" class="btn-ghost">Cancel</button>
+        <button value="ok" class="btn-primary" id="confirm-ok">Issue</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toasts" class="pointer-events-none fixed bottom-5 right-5 z-50 flex flex-col items-end gap-2"></div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
