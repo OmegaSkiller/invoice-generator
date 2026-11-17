@@ -17,11 +17,59 @@ const app = {
 };
 
 // ---------- api ----------
+// Local mode: node server.js (real PDFs, output folder). Static mode: GitHub Pages (localStorage + print to PDF).
+let STATIC = false;
+let local = null;
+
+async function detectMode() {
+  if (document.querySelector('meta[name="app-mode"][content="static"]')) return true;
+  try {
+    const res = await fetch('api/state', { cache: 'no-store' });
+    if (res.ok && (res.headers.get('content-type') || '').includes('json')) return false;
+  } catch {}
+  return true;
+}
+
 async function api(method, url, body) {
+  if (STATIC) return local.localApi(method, url, body);
   const res = await fetch(url, { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || res.statusText);
   return data;
+}
+
+async function invoiceHtml(n, lang) {
+  if (STATIC) return local.renderHtml(n, lang);
+  return fetch(`api/invoices/${n}/html?lang=${lang}`).then((r) => (r.ok ? r.text() : ''));
+}
+
+/** Static mode: print an HTML document via a hidden iframe ("Save as PDF" in the dialog). */
+function printHtml(html, title) {
+  const f = document.createElement('iframe');
+  f.setAttribute('aria-hidden', 'true');
+  f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+  document.body.append(f);
+  f.onload = async () => {
+    try { await f.contentDocument.fonts.ready; } catch {}
+    const prev = document.title;
+    document.title = title; // Chrome/Safari suggest this as the PDF file name
+    f.contentWindow.focus();
+    f.contentWindow.print();
+    setTimeout(() => { document.title = prev; f.remove(); }, 1000);
+  };
+  f.srcdoc = html;
+}
+
+/** Download (local) or print (static) one or more issued invoices. */
+function exportInvoices(numbers, lang) {
+  if (STATIC) {
+    const { html, title } = local.renderManyHtml(numbers, lang);
+    printHtml(html, title);
+    toast('Choose “Save as PDF” in the print dialog');
+    return;
+  }
+  if (numbers.length === 1) download(`api/invoices/${numbers[0]}/pdf${lang ? `?lang=${lang}` : ''}`);
+  else download(`api/zip?numbers=${numbers.join(',')}`);
 }
 function download(url) {
   const a = document.createElement('a');
@@ -95,6 +143,7 @@ function showPreview(html, label = '', actions = '') {
 // ---------- language ----------
 function setLang(l) {
   app.lang = l; LS.set('lang', l);
+  renderCredit();
   const ind = $('#lang-toggle .seg-indicator');
   ind.style.transform = l === 'en' ? 'translateX(100%)' : 'none';
   $$('#lang-toggle button').forEach((b) => {
@@ -135,7 +184,7 @@ const previewSingle = debounce(async (fromSettings = false) => {
   const month = sMonth.value, amount = parseAmount(sAmount.value) ?? (fromSettings ? app.state.settings.defaultAmount : null);
   if (!month || !amount) { showPreview('', ''); $('#s-warnings').innerHTML = ''; $('#s-issue').disabled = true; return; }
   try {
-    const r = await api('POST', '/api/preview', { month, amount, lang: app.lang });
+    const r = await api('POST', 'api/preview', { month, amount, lang: app.lang });
     if (app.tab !== 'single' && app.tab !== 'settings') return;
     $('#s-dates').textContent = `Issued ${dmy(r.issueDate)} · due ${dmy(r.dueDate)}`;
     $('#s-warnings').innerHTML = warningsHtml(r.warnings);
@@ -160,11 +209,10 @@ async function issue(rows) {
   const btns = [$('#s-issue'), $('#b-issue')];
   btns.forEach((b) => (b.disabled = true));
   try {
-    const r = await api('POST', '/api/issue', { rows, lang: app.lang });
+    const r = await api('POST', 'api/issue', { rows, lang: app.lang });
     applyState(r);
     r.warnings?.forEach((w) => toast(w, 'warn'));
-    if (r.issued.length === 1) download(`/api/invoices/${r.issued[0].number}/pdf`);
-    else download(`/api/zip?numbers=${r.issued.map((i) => i.number).join(',')}`);
+    exportInvoices(r.issued.map((i) => i.number));
     toast(`Issued ${r.issued.map((i) => i.name).join(', ')}`);
     return r;
   } catch (e) { toast(e.message, 'error'); }
@@ -240,7 +288,7 @@ const previewBulk = debounce(async (keepFocus = false) => {
     showBulkSelected(); return;
   }
   try {
-    const r = await api('POST', '/api/preview-bulk', { rows: app.bulkRows.map((x) => ({ month: x.month, amount: parseAmount(x.amount) })), lang: app.lang });
+    const r = await api('POST', 'api/preview-bulk', { rows: app.bulkRows.map((x) => ({ month: x.month, amount: parseAmount(x.amount) })), lang: app.lang });
     // server sorts by month; map previews back to row order
     app.bulkPreview = app.bulkRows.map((row) => r.invoices.find((p) => p.month === row.month && p.amountCents === Math.round(parseAmount(row.amount) * 100)));
     $('#b-warnings').innerHTML = warningsHtml(r.warnings);
@@ -292,7 +340,7 @@ function renderHistory() {
       <div class="mt-2 flex gap-1 opacity-60 transition group-hover:opacity-100">
         <button class="btn-ghost !px-2.5 !py-1 text-xs" data-pdf="bg">PDF BG</button>
         <button class="btn-ghost !px-2.5 !py-1 text-xs" data-pdf="en">PDF EN</button>
-        <button class="btn-ghost !px-2.5 !py-1 text-xs" data-reveal>Show in Finder</button>
+        ${STATIC ? '' : '<button class="btn-ghost !px-2.5 !py-1 text-xs" data-reveal>Show in Finder</button>'}
         ${inv.number === maxNum ? `<button class="btn-ghost ml-auto !px-2.5 !py-1 text-xs !text-rose-300 hover:!border-rose-400/30" data-del>Delete</button>` : ''}
       </div>
     </li>`).join('') : `<li class="rounded-xl border border-dashed border-white/10 p-8 text-center text-sm text-zinc-500">No invoices issued yet.</li>`;
@@ -302,22 +350,22 @@ function renderHistory() {
 async function showHistoryPreview() {
   if (historySelected == null) return showPreview('', '');
   const lang = app.lang;
-  const html = await fetch(`/api/invoices/${historySelected}/html?lang=${lang}`).then((r) => r.ok ? r.text() : '');
+  const html = await invoiceHtml(historySelected, lang);
   if (app.tab !== 'history') return;
   showPreview(html, `№ ${String(historySelected).padStart(10, '0')} · issued`,
-    `<button class="btn-ghost !px-3 !py-1.5 text-xs" onclick="location.href='/api/invoices/${historySelected}/pdf?lang=${lang}'">Download ${lang.toUpperCase()}</button>`);
+    `<button class="btn-ghost !px-3 !py-1.5 text-xs" data-export="${historySelected}" data-lang="${lang}">${STATIC ? 'Save PDF' : 'Download'} ${lang.toUpperCase()}</button>`);
 }
 $('#h-list').addEventListener('click', async (e) => {
   const li = e.target.closest('li[data-n]'); if (!li) return;
   const n = Number(li.dataset.n);
   const pdf = e.target.closest('[data-pdf]');
-  if (pdf) return download(`/api/invoices/${n}/pdf?lang=${pdf.dataset.pdf}`);
-  if (e.target.closest('[data-reveal]')) return api('POST', '/api/reveal', { number: n });
+  if (pdf) return exportInvoices([n], pdf.dataset.pdf);
+  if (e.target.closest('[data-reveal]')) return api('POST', 'api/reveal', { number: n });
   if (e.target.closest('[data-del]')) {
     const ok = await confirmDialog(`Delete invoice № ${String(n).padStart(10, '0')}?`,
       '<p>Removes it from history so the number can be reused. The PDF already saved in the output folder is left untouched. Only do this if the invoice was never sent.</p>', 'Delete');
     if (!ok) return;
-    try { applyState(await api('DELETE', `/api/invoices/${n}`)); historySelected = null; renderHistory(); toast('Deleted'); }
+    try { applyState(await api('DELETE', `api/invoices/${n}`)); historySelected = null; renderHistory(); toast('Deleted'); }
     catch (err) { toast(err.message, 'error'); }
     return;
   }
@@ -351,7 +399,7 @@ const SETTINGS_SCHEMA = [
   ]],
   ['General', [
     ['startNumber', 'First invoice number (if no history)', 'number'], ['defaultAmount', 'Default amount (EUR)', 'number'],
-    ['defaultLang', 'Default language', ['bg', 'en']], ['outputDir', 'Output folder (absolute or relative)'],
+    ['defaultLang', 'Default language', ['bg', 'en']], ['outputDir', 'Output folder (absolute or relative)', 'local'],
   ]],
 ];
 const getPath = (o, p) => p.split('.').reduce((a, k) => a?.[k], o);
@@ -364,7 +412,7 @@ function renderSettings() {
     <fieldset class="space-y-3">
       <legend class="mb-3 text-xs font-semibold uppercase tracking-widest text-teal-300/80">${title}</legend>
       ${title === 'Invoice colors' ? themesHtml() : ''}
-      ${fields.map(([p, label, kind]) => {
+      ${fields.filter(([, , kind]) => !(STATIC && kind === 'local')).map(([p, label, kind]) => {
         const v = getPath(s, p);
         if (kind === 'i18n') return `<div><span class="label">${label}</span><div class="grid gap-2">
           <div class="relative"><span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-zinc-600">BG</span>${input(p + '.bg', v?.bg)}</div>
@@ -377,7 +425,16 @@ function renderSettings() {
       }).join('')}
     </fieldset>`).join('') +
     `<div class="sticky bottom-0 -mx-5 border-t border-white/[0.06] bg-zinc-900/90 px-5 py-3 backdrop-blur"><button class="btn-primary w-full">Save settings</button>
-     <p class="mt-2 text-center text-[11px] text-zinc-500">Issued invoices keep the data they were created with. Optional logo: data/logo.png or .svg</p></div>`;
+     <p class="mt-2 text-center text-[11px] text-zinc-500">Issued invoices keep the data they were created with.${STATIC ? '' : ' Optional logo: data/logo.png or .svg'}</p></div>`;
+  if (STATIC) $('#settings-form').insertAdjacentHTML('afterbegin', `
+    <fieldset class="space-y-3">
+      <legend class="mb-3 text-xs font-semibold uppercase tracking-widest text-teal-300/80">Backup</legend>
+      <p class="text-xs leading-relaxed text-zinc-400">Everything is stored only in this browser. Export a backup regularly – clearing site data deletes your invoice history, and Bulgarian numbering must never restart.</p>
+      <div class="grid grid-cols-2 gap-2">
+        <button type="button" class="btn-ghost" id="backup-export">Export backup</button>
+        <label class="btn-ghost cursor-pointer">Import backup<input type="file" accept="application/json,.json" id="backup-import" class="sr-only"></label>
+      </div>
+    </fieldset>`);
 }
 const HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 const normHex = (v) => { v = v.trim(); if (v && v[0] !== '#') v = '#' + v; return v.toLowerCase(); };
@@ -412,7 +469,7 @@ function readColors() {
 
 async function saveSettingsPatch(patch, msg) {
   const s = { ...structuredClone(app.state.settings), ...patch };
-  applyState(await api('PUT', '/api/settings', s));
+  applyState(await api('PUT', 'api/settings', s));
   toast(msg); previewSingle(true);
 }
 
@@ -454,9 +511,40 @@ $('#settings-form').addEventListener('submit', async (e) => {
     if (!el.name) continue;
     setPath(s, el.name, el.type === 'number' ? Number(el.value) : el.matches('[data-hex]') ? normHex(el.value) : el.value);
   }
-  try { applyState(await api('PUT', '/api/settings', s)); toast('Settings saved'); previewSingle(true); }
+  try { applyState(await api('PUT', 'api/settings', s)); toast('Settings saved'); previewSingle(true); }
   catch (err) { toast(err.message, 'error'); }
 });
+
+$('#preview-actions').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-export]');
+  if (b) exportInvoices([Number(b.dataset.export)], b.dataset.lang);
+});
+
+$('#settings-form').addEventListener('click', (e) => {
+  if (!e.target.closest('#backup-export')) return;
+  const blob = new Blob([JSON.stringify(local.exportBackup(), null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `invoice-generator-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+$('#settings-form').addEventListener('change', async (e) => {
+  if (e.target.id !== 'backup-import' || !e.target.files[0]) return;
+  try {
+    const data = JSON.parse(await e.target.files[0].text());
+    const n = data.invoices?.length ?? 0;
+    if (!(await confirmDialog('Replace data with backup?', `<p>This replaces the settings and all ${app.state.invoices.length} invoices in this browser with the backup (${n} invoices).</p>`, 'Replace'))) return;
+    applyState(local.importBackup(data)); historySelected = null; toast('Backup imported'); refresh();
+  } catch (err) { toast(err.message, 'error'); }
+  finally { e.target.value = ''; }
+});
+
+// ---------- footer credit ----------
+function renderCredit() {
+  $('#credit-text').textContent = app.lang === 'en' ? 'Made with' : 'Направено с';
+  $('#credit-by').textContent = app.lang === 'en' ? 'by' : 'от';
+}
 
 // ---------- state ----------
 function applyState(st) {
@@ -469,9 +557,17 @@ function applyState(st) {
 
 (async function init() {
   try {
-    applyState(await api('GET', '/api/state'));
+    STATIC = await detectMode();
+    if (STATIC) {
+      local = await import('./local-api.js');
+      document.documentElement.dataset.mode = 'static';
+      $('#s-issue-label').textContent = 'Issue & save PDF';
+      $('#b-issue').textContent = 'Issue all & save PDF';
+      $('#s-hint').textContent = 'Preview is a draft. Issuing assigns the number and opens the print dialog – choose “Save as PDF”. Data stays in this browser.';
+    }
+    applyState(await api('GET', 'api/state'));
     renderRows();
     setLang(app.lang || app.state.settings.defaultLang || 'bg');
     setTab(app.tab);
-  } catch (e) { toast('Server not reachable: ' + e.message, 'error'); }
+  } catch (e) { toast('Could not start: ' + e.message, 'error'); }
 })();
