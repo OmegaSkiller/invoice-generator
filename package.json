@@ -13,7 +13,8 @@
     "prestart": "npm run build:css",
     "start": "node server.js",
     "cli": "node cli.js",
-    "screenshots": "node scripts/screenshots.mjs"
+    "screenshots": "node scripts/screenshots.mjs",
+    "build:static": "node scripts/build-static.mjs"
   },
   "engines": {
     "node": ">=20"
@@ -26,5 +27,6 @@
     "@tailwindcss/cli": "^4.3.5",
     "tailwindcss": "^4.3.5"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "homepage": "https://omegaskiller.github.io/invoice-generator/"
 }

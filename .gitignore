@@ -9,3 +9,4 @@ public/app.css
 templates/*
 !templates/example.txt
 .claude/
+dist/
