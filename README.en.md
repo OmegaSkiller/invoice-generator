@@ -4,6 +4,20 @@
 
 A local invoice generator for Bulgarian companies that bill the same client every month. Runs entirely on your machine, amounts are always in euro (€), invoices are issued in Bulgarian (default) or English and exported to PDF.
 
+## Screenshots
+
+![Single invoice with live preview](docs/screenshots/single.png)
+
+| Bulk issuing | History |
+|---|---|
+| ![Bulk issuing](docs/screenshots/bulk.png) | ![History](docs/screenshots/history.png) |
+
+| Invoice (BG) | Invoice (EN) | Colour themes |
+|---|---|---|
+| ![Bulgarian invoice](docs/screenshots/invoice-bg.png) | ![English invoice](docs/screenshots/invoice-en.png) | ![Colour themes](docs/screenshots/themes.png) |
+
+Screenshots use dummy data. Regenerate them with `npm run screenshots` — the script uses a temporary dataset and never touches yours.
+
 ## Features
 
 - **Live preview** while you type the month and amount.
