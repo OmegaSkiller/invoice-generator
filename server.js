@@ -12,7 +12,9 @@ import { zip } from './src/zip.js';
 const PORT = Number(process.env.PORT) || 4321;
 const PUBLIC = path.join(ROOT, 'public');
 const FONT_DIR = path.join(ROOT, 'node_modules/@fontsource-variable/inter/files');
-const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.woff2': 'font/woff2', '.svg': 'image/svg+xml' };
+const SHARED = path.join(ROOT, 'src/shared');
+const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.woff2': 'font/woff2', '.svg': 'image/svg+xml',
+  '.png': 'image/png', '.txt': 'text/plain; charset=utf-8', '.xml': 'application/xml', '.webmanifest': 'application/manifest+json' };
 
 const send = (res, status, body, type = 'application/json') => {
   res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store' });
@@ -101,8 +103,9 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET') {
       let file;
       if (url.pathname.startsWith('/fonts/')) file = path.join(FONT_DIR, path.basename(url.pathname));
+      else if (url.pathname.startsWith('/shared/')) file = path.join(SHARED, path.basename(url.pathname));
       else file = path.join(PUBLIC, url.pathname === '/' ? 'index.html' : path.normalize(url.pathname));
-      if (file.startsWith(PUBLIC) || file.startsWith(FONT_DIR)) {
+      if (file.startsWith(PUBLIC) || file.startsWith(FONT_DIR) || file.startsWith(SHARED)) {
         if (fs.existsSync(file) && fs.statSync(file).isFile())
           return send(res, 200, fs.readFileSync(file), MIME[path.extname(file)] || 'application/octet-stream');
       }
