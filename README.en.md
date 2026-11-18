@@ -8,9 +8,9 @@ A local invoice generator for Bulgarian companies that bill the same client ever
 
 ![Single invoice with live preview](docs/screenshots/single-en.png)
 
-| Bulk issuing | History |
-|---|---|
-| ![Bulk issuing](docs/screenshots/bulk-en.png) | ![History](docs/screenshots/history-en.png) |
+| Bulk issuing | History | Settings |
+|---|---|---|
+| ![Bulk issuing](docs/screenshots/bulk-en.png) | ![History](docs/screenshots/history-en.png) | ![Settings](docs/screenshots/settings-en.png) |
 
 | Invoice (EN) | Invoice (BG) | Colour themes |
 |---|---|---|
@@ -34,7 +34,7 @@ Screenshots use dummy data. Regenerate them with `npm run screenshots` — the s
 
 - Your data (settings, themes, issued invoices) stays in your browser (localStorage). Nothing is sent to a server.
 - PDFs are created through the browser's print dialog: choose "Save as PDF". Bulk issuing prints all invoices as one PDF, one page per invoice.
-- Clearing site data deletes your invoice history. Export a backup regularly from **Settings → Backup**.
+- Clearing site data deletes your invoice history. Export a backup regularly from **Settings → General → Backup**.
 
 The local version (below) writes real PDF files to a folder, builds ZIP archives and has a CLI.
 
