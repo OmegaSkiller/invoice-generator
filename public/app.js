@@ -1,3 +1,5 @@
+import { STRINGS, SETTINGS_SCHEMA } from './i18n.js';
+
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -9,12 +11,17 @@ const LS = {
 
 const app = {
   state: null,
-  lang: LS.get('lang', null),
+  lang: LS.get('uiLang', 'bg') === 'en' ? 'en' : 'bg',
+  sec: LS.get('settingsSec', 'supplier'),
   tab: LS.get('tab', 'single'),
   bulkRows: LS.get('bulkRows', []),
   bulkPreview: [],
   bulkSelected: 0,
 };
+
+/** Translate a UI string (functions receive the extra args). */
+const t = (k, ...a) => { const v = STRINGS[app.lang]?.[k] ?? STRINGS.bg[k] ?? k; return typeof v === 'function' ? v(...a) : v; };
+const pad10 = (n) => String(n).padStart(10, '0');
 
 // ---------- api ----------
 // Local mode: node server.js (real PDFs, output folder). Static mode: GitHub Pages (localStorage + print to PDF).
@@ -65,7 +72,7 @@ function exportInvoices(numbers, lang) {
   if (STATIC) {
     const { html, title } = local.renderManyHtml(numbers, lang);
     printHtml(html, title);
-    toast('Choose “Save as PDF” in the print dialog');
+    toast(t('saveAsPdf'));
     return;
   }
   if (numbers.length === 1) download(`api/invoices/${numbers[0]}/pdf${lang ? `?lang=${lang}` : ''}`);
@@ -81,8 +88,14 @@ function download(url) {
 const thisMonth = () => new Date().toISOString().slice(0, 7);
 const addMonth = (m) => { const [y, mo] = m.split('-').map(Number); const d = new Date(Date.UTC(y, mo, 1)); return d.toISOString().slice(0, 7); };
 const parseAmount = (v) => { const n = Number(String(v).replace(/\s/g, '').replace(',', '.')); return Number.isFinite(n) && n > 0 ? n : null; };
-const eur = (n) => '€' + Number(n).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const monthLabel = (m) => new Date(m + '-01T00:00:00Z').toLocaleString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const eur = (n) => {
+  const v = Number(n).toLocaleString(app.lang === 'en' ? 'en-GB' : 'bg-BG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return app.lang === 'en' ? `€${v}` : `${v} €`;
+};
+const monthLabel = (m) => {
+  const l = new Date(m + '-01T00:00:00Z').toLocaleString(app.lang === 'en' ? 'en-GB' : 'bg-BG', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  return l.charAt(0).toUpperCase() + l.slice(1);
+};
 const dmy = (iso) => iso.split('-').reverse().join('.');
 const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 
@@ -101,7 +114,7 @@ function warningsHtml(list) {
     ${list.map((w) => `<p class="flex gap-2"><span>⚠</span><span>${esc(w)}</span></p>`).join('')}</div>`;
 }
 
-function confirmDialog(title, bodyHtml, okLabel = 'Issue') {
+function confirmDialog(title, bodyHtml, okLabel = t('issue')) {
   const d = $('#confirm');
   $('#confirm-title').textContent = title;
   $('#confirm-body').innerHTML = bodyHtml;
@@ -141,9 +154,23 @@ function showPreview(html, label = '', actions = '') {
 }
 
 // ---------- language ----------
+/** Static texts marked with data-i18n / data-i18n-title / data-i18n-aria. */
+function applyI18n() {
+  $$('[data-i18n]').forEach((el) => (el.textContent = t(el.dataset.i18n)));
+  $$('[data-i18n-title]').forEach((el) => (el.title = t(el.dataset.i18nTitle)));
+  $$('[data-i18n-aria]').forEach((el) => el.setAttribute('aria-label', t(el.dataset.i18nAria)));
+  $('#app-main').lang = app.lang;
+  $('#s-issue-label').textContent = t(STATIC ? 'issueSave' : 'issueDownload');
+  $('#b-issue').textContent = t(STATIC ? 'bulkIssuePdf' : 'bulkIssueZip');
+  $('#s-hint').textContent = t(STATIC ? 'hintStatic' : 'hintLocal');
+  $('#credit-text').textContent = t('creditText');
+  $('#credit-by').textContent = t('creditBy');
+}
+
 function setLang(l) {
-  app.lang = l; LS.set('lang', l);
-  renderCredit();
+  app.lang = l; LS.set('uiLang', l);
+  applyI18n();
+  if (app.state) { renderSettings(true); renderRows(); }
   const ind = $('#lang-toggle .seg-indicator');
   ind.style.transform = l === 'en' ? 'translateX(100%)' : 'none';
   $$('#lang-toggle button').forEach((b) => {
@@ -158,11 +185,11 @@ $$('#lang-toggle button').forEach((b) => b.addEventListener('click', () => setLa
 
 // ---------- tabs ----------
 const TABS = ['single', 'bulk', 'history', 'settings'];
-function setTab(t) {
-  app.tab = t; LS.set('tab', t);
-  $('#tab-indicator').style.transform = `translateX(${TABS.indexOf(t) * 100}%)`;
-  $$('#tabs button').forEach((b) => b.classList.toggle('text-zinc-500', b.dataset.tab !== t));
-  $$('.tab-panel').forEach((p) => (p.hidden = p.dataset.panel !== t));
+function setTab(tab) {
+  app.tab = tab; LS.set('tab', tab);
+  $('#tab-indicator').style.transform = `translateX(${TABS.indexOf(tab) * 100}%)`;
+  $$('#tabs button').forEach((b) => b.classList.toggle('text-zinc-500', b.dataset.tab !== tab));
+  $$('.tab-panel').forEach((p) => (p.hidden = p.dataset.panel !== tab));
   refresh();
 }
 $$('#tabs button').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
@@ -186,10 +213,10 @@ const previewSingle = debounce(async (fromSettings = false) => {
   try {
     const r = await api('POST', 'api/preview', { month, amount, lang: app.lang });
     if (app.tab !== 'single' && app.tab !== 'settings') return;
-    $('#s-dates').textContent = `Issued ${dmy(r.issueDate)} · due ${dmy(r.dueDate)}`;
+    $('#s-dates').textContent = t('datesLine', dmy(r.issueDate), dmy(r.dueDate));
     $('#s-warnings').innerHTML = warningsHtml(r.warnings);
     $('#s-issue').disabled = false;
-    showPreview(r.html, `№ ${r.number} · draft`);
+    showPreview(r.html, `№ ${r.number} · ${t('draft')}`);
   } catch (e) { toast(e.message, 'error'); }
 }, 180);
 
@@ -198,9 +225,9 @@ sAmount.addEventListener('input', () => { LS.set('s-amount', sAmount.value); pre
 
 $('#s-issue').addEventListener('click', async () => {
   const amount = parseAmount(sAmount.value);
-  if (!amount) return toast('Enter a valid amount', 'error');
-  const ok = await confirmDialog(`Issue invoice № ${String(app.state.nextNumber).padStart(10, '0')}?`,
-    `<p>${monthLabel(sMonth.value)} · <b class="text-zinc-100">${eur(amount)}</b> · ${app.lang.toUpperCase()}</p><p class="mt-2">The number is reserved permanently and the PDF is saved to the output folder.</p>`);
+  if (!amount) return toast(t('validAmount'), 'error');
+  const ok = await confirmDialog(t('confirmIssue', pad10(app.state.nextNumber)),
+    `<p>${monthLabel(sMonth.value)} · <b class="text-zinc-100">${eur(amount)}</b> · ${app.lang.toUpperCase()}</p><p class="mt-2">${t(STATIC ? 'confirmIssueBodyStatic' : 'confirmIssueBody')}</p>`);
   if (!ok) return;
   await issue([{ month: sMonth.value, amount }]);
 });
@@ -213,7 +240,7 @@ async function issue(rows) {
     applyState(r);
     r.warnings?.forEach((w) => toast(w, 'warn'));
     exportInvoices(r.issued.map((i) => i.number));
-    toast(`Issued ${r.issued.map((i) => i.name).join(', ')}`);
+    toast(t('issuedToast', r.issued.map((i) => i.name).join(', ')));
     return r;
   } catch (e) { toast(e.message, 'error'); }
   finally { btns.forEach((b) => (b.disabled = false)); refresh(); }
@@ -229,11 +256,11 @@ function renderRows() {
       <input type="month" value="${esc(r.month)}" data-k="month" class="field !py-2 !px-2.5 flex-1 min-w-0">
       <div class="relative w-28 shrink-0"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">€</span>
         <input value="${esc(r.amount)}" data-k="amount" inputmode="decimal" placeholder="0.00" class="field !py-2 !pl-7 text-right"></div>
-      <button class="icon-btn opacity-50 group-hover:opacity-100" data-remove title="Remove">
+      <button class="icon-btn opacity-50 group-hover:opacity-100" data-remove title="${t('remove')}">
         <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    </li>`).join('') || `<li class="rounded-xl border border-dashed border-white/10 p-6 text-center text-sm text-zinc-500">No rows yet.</li>`;
+    </li>`).join('') || `<li class="rounded-xl border border-dashed border-white/10 p-6 text-center text-sm text-zinc-500">${t('noRows')}</li>`;
   const valid = app.bulkRows.filter((r) => r.month && parseAmount(r.amount));
-  $('#b-count').textContent = valid.length;
+  $('#b-count').textContent = t('nInvoices', valid.length);
   $('#b-total').textContent = eur(valid.reduce((s, r) => s + parseAmount(r.amount), 0));
   $('#b-issue').disabled = !valid.length || valid.length !== app.bulkRows.length;
 }
@@ -267,7 +294,7 @@ $('#b-paste-apply').addEventListener('click', () => {
     const m = l.match(/^(\d{4})[-./](\d{1,2})[\s,;:\t]+(.+)$/);
     return m ? { month: `${m[1]}-${m[2].padStart(2, '0')}`, amount: m[3].trim() } : null;
   });
-  if (rows.some((r) => !r)) return toast('Use one "YYYY-MM amount" per line', 'error');
+  if (rows.some((r) => !r)) return toast(t('pasteFormat'), 'error');
   app.bulkRows = rows; app.bulkSelected = 0;
   $('#b-paste').classList.add('hidden');
   saveRows(); renderRows(); previewBulk();
@@ -276,7 +303,7 @@ $('#b-paste-apply').addEventListener('click', () => {
 function showBulkSelected() {
   if (app.tab !== 'bulk') return;
   const p = app.bulkPreview[app.bulkSelected];
-  showPreview(p?.html || '', p ? `№ ${p.number} · ${monthLabel(p.month)} · draft` : '');
+  showPreview(p?.html || '', p ? `№ ${p.number} · ${monthLabel(p.month)} · ${t('draft')}` : '');
 }
 
 const previewBulk = debounce(async (keepFocus = false) => {
@@ -304,7 +331,7 @@ function renderSummaryOnly() {
     li.firstElementChild.textContent = p ? '№' + p.number.replace(/^0+/, '') : '';
   });
   const valid = app.bulkRows.filter((r) => r.month && parseAmount(r.amount));
-  $('#b-count').textContent = valid.length;
+  $('#b-count').textContent = t('nInvoices', valid.length);
   $('#b-total').textContent = eur(valid.reduce((s, r) => s + parseAmount(r.amount), 0));
   $('#b-issue').disabled = !valid.length || valid.length !== app.bulkRows.length;
 }
@@ -312,9 +339,9 @@ function renderSummaryOnly() {
 $('#b-issue').addEventListener('click', async () => {
   const rows = app.bulkRows.map((r) => ({ month: r.month, amount: parseAmount(r.amount) }));
   const sorted = [...rows].sort((a, b) => a.month.localeCompare(b.month));
-  const ok = await confirmDialog(`Issue ${rows.length} invoices?`,
+  const ok = await confirmDialog(t('confirmBulk', rows.length),
     `<ul class="space-y-1">${sorted.map((r, i) => `<li class="flex justify-between"><span>№ ${app.state.nextNumber + i} · ${monthLabel(r.month)}</span><b class="text-zinc-100">${eur(r.amount)}</b></li>`).join('')}</ul>
-     <p class="mt-3">Numbers are reserved permanently; PDFs are saved and downloaded as a ZIP.</p>`, `Issue ${rows.length}`);
+     <p class="mt-3">${t(STATIC ? 'confirmBulkBodyStatic' : 'confirmBulkBody')}</p>`, t('issueN', rows.length));
   if (!ok) return;
   const r = await issue(rows);
   if (r) { app.bulkRows = []; app.bulkPreview = []; saveRows(); renderRows(); }
@@ -340,10 +367,10 @@ function renderHistory() {
       <div class="mt-2 flex gap-1 opacity-60 transition group-hover:opacity-100">
         <button class="btn-ghost !px-2.5 !py-1 text-xs" data-pdf="bg">PDF BG</button>
         <button class="btn-ghost !px-2.5 !py-1 text-xs" data-pdf="en">PDF EN</button>
-        ${STATIC ? '' : '<button class="btn-ghost !px-2.5 !py-1 text-xs" data-reveal>Show in Finder</button>'}
-        ${inv.number === maxNum ? `<button class="btn-ghost ml-auto !px-2.5 !py-1 text-xs !text-rose-300 hover:!border-rose-400/30" data-del>Delete</button>` : ''}
+        ${STATIC ? '' : `<button class="btn-ghost !px-2.5 !py-1 text-xs" data-reveal>${t('showInFinder')}</button>`}
+        ${inv.number === maxNum ? `<button class="btn-ghost ml-auto !px-2.5 !py-1 text-xs !text-rose-300 hover:!border-rose-400/30" data-del>${t('del')}</button>` : ''}
       </div>
-    </li>`).join('') : `<li class="rounded-xl border border-dashed border-white/10 p-8 text-center text-sm text-zinc-500">No invoices issued yet.</li>`;
+    </li>`).join('') : `<li class="rounded-xl border border-dashed border-white/10 p-8 text-center text-sm text-zinc-500">${t('noInvoices')}</li>`;
   if (historySelected == null && list[0]) historySelected = list[0].number;
   showHistoryPreview();
 }
@@ -352,8 +379,8 @@ async function showHistoryPreview() {
   const lang = app.lang;
   const html = await invoiceHtml(historySelected, lang);
   if (app.tab !== 'history') return;
-  showPreview(html, `№ ${String(historySelected).padStart(10, '0')} · issued`,
-    `<button class="btn-ghost !px-3 !py-1.5 text-xs" data-export="${historySelected}" data-lang="${lang}">${STATIC ? 'Save PDF' : 'Download'} ${lang.toUpperCase()}</button>`);
+  showPreview(html, `№ ${pad10(historySelected)} · ${t('issued')}`,
+    `<button class="btn-ghost !px-3 !py-1.5 text-xs" data-export="${historySelected}" data-lang="${lang}">${t(STATIC ? 'savePdf' : 'download')} ${lang.toUpperCase()}</button>`);
 }
 $('#h-list').addEventListener('click', async (e) => {
   const li = e.target.closest('li[data-n]'); if (!li) return;
@@ -362,10 +389,9 @@ $('#h-list').addEventListener('click', async (e) => {
   if (pdf) return exportInvoices([n], pdf.dataset.pdf);
   if (e.target.closest('[data-reveal]')) return api('POST', 'api/reveal', { number: n });
   if (e.target.closest('[data-del]')) {
-    const ok = await confirmDialog(`Delete invoice № ${String(n).padStart(10, '0')}?`,
-      '<p>Removes it from history so the number can be reused. The PDF already saved in the output folder is left untouched. Only do this if the invoice was never sent.</p>', 'Delete');
+    const ok = await confirmDialog(t('confirmDelete', pad10(n)), `<p>${t('confirmDeleteBody')}</p>`, t('del'));
     if (!ok) return;
-    try { applyState(await api('DELETE', `api/invoices/${n}`)); historySelected = null; renderHistory(); toast('Deleted'); }
+    try { applyState(await api('DELETE', `api/invoices/${n}`)); historySelected = null; renderHistory(); toast(t('deleted')); }
     catch (err) { toast(err.message, 'error'); }
     return;
   }
@@ -373,68 +399,72 @@ $('#h-list').addEventListener('click', async (e) => {
 });
 
 // ---------- settings ----------
-const SETTINGS_SCHEMA = [
-  ['Supplier (you)', [
-    ['supplier.name', 'Company name', 'i18n'], ['supplier.address', 'Address', 'i18n'], ['supplier.city', 'City', 'i18n'],
-    ['supplier.country', 'Country', 'i18n'], ['supplier.mol', 'Representative (МОЛ)', 'i18n'],
-    ['supplier.eik', 'ЕИК / Булстат'], ['supplier.vatNumber', 'VAT № (only if registered)'],
-    ['supplier.phone', 'Phone'], ['supplier.email', 'Email'],
-  ]],
-  ['Bank', [['supplier.bank.name', 'Bank name'], ['supplier.bank.iban', 'IBAN'], ['supplier.bank.bic', 'BIC']]],
-  ['Client', [
-    ['client.name', 'Company name', 'i18n'], ['client.address', 'Address', 'i18n'], ['client.city', 'City / state / ZIP', 'i18n'],
-    ['client.country', 'Country', 'i18n'], ['client.mol', 'Representative', 'i18n'],
-    ['client.taxId', 'Tax ID / Reg. №'], ['client.vatNumber', 'VAT №'], ['client.phone', 'Phone'], ['client.email', 'Email'],
-  ]],
-  ['Line item', [['item.description', 'Description ({month}, {year})', 'i18n'], ['item.unit', 'Unit', 'i18n']]],
-  ['Tax & legal', [
-    ['vat.rate', 'VAT rate %', 'number'], ['vat.exemptReason', 'VAT exemption basis', 'i18n'],
-    ['paymentMethod', 'Payment method', 'i18n'], ['compiledBy', 'Compiled by (Съставил)', 'i18n'], ['footerNote', 'Footer note', 'i18n'],
-    ['dualCurrency', 'Show BGN equivalent', ['auto', 'always', 'never']],
-  ]],
-  ['Invoice colors', [
-    ['colors.accent', 'Accent (band, labels, badge)', 'color'], ['colors.background', 'Page background & "Сума за плащане" text', 'color'],
-    ['colors.text', 'Main text', 'color'], ['colors.muted', 'Secondary text', 'color'],
-    ['colors.line', 'Borders, lines & "Сума за плащане" box', 'color'], ['colors.panel', 'Boxes background', 'color'],
-  ]],
-  ['General', [
-    ['startNumber', 'First invoice number (if no history)', 'number'], ['defaultAmount', 'Default amount (EUR)', 'number'],
-    ['defaultLang', 'Default language', ['bg', 'en']], ['outputDir', 'Output folder (absolute or relative)', 'local'],
-  ]],
-];
 const getPath = (o, p) => p.split('.').reduce((a, k) => a?.[k], o);
 const setPath = (o, p, v) => { const ks = p.split('.'); const last = ks.pop(); ks.reduce((a, k) => (a[k] ??= {}), o)[last] = v; };
+const legend = (key) => `<h3 class="mb-3 text-[11px] font-semibold uppercase tracking-widest text-teal-300/80">${t(key)}</h3>`;
 
-function renderSettings() {
+function fieldHtml([p, label, kind], s) {
+  const v = getPath(s, p);
+  const lbl = label[app.lang] || label.bg;
+  if (kind === 'i18n') {
+    const one = (l) => `<div class="relative">
+        <span class="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 rounded-md bg-white/[0.07] px-1.5 py-0.5 text-[10px] font-semibold text-zinc-400">${l.toUpperCase()}</span>
+        <input name="${p}.${l}" value="${esc(v?.[l])}" class="field !py-2 !pl-10" aria-label="${esc(lbl)} (${l.toUpperCase()})"></div>`;
+    return `<div class="col-span-2"><span class="label">${esc(lbl)}</span><div class="grid grid-cols-2 gap-2">${one('bg')}${one('en')}</div></div>`;
+  }
+  if (Array.isArray(kind)) return `<label class="block"><span class="label">${esc(lbl)}</span><select name="${p}" class="field !py-2">${
+    kind.map(([val, l]) => `<option value="${val}" ${val === v ? 'selected' : ''}>${esc(l[app.lang] || l.bg)}</option>`).join('')}</select></label>`;
+  if (kind === 'color') return `<label class="block"><span class="label">${esc(lbl)}</span><div class="relative">
+      <span data-swatch class="absolute left-2.5 top-1/2 size-5 -translate-y-1/2 rounded-md ring-1 ring-white/20" style="background:${esc(v)}"></span>
+      <input name="${p}" value="${esc(v)}" data-hex maxlength="7" spellcheck="false" autocomplete="off" class="field !py-2 !pl-10 font-mono uppercase" placeholder="#RRGGBB"></div></label>`;
+  const type = kind === 'number' ? 'number" step="any' : 'text';
+  return `<label class="block ${kind === 'wide' ? 'col-span-2' : ''}"><span class="label">${esc(lbl)}</span><input name="${p}" type="${type}" value="${esc(v)}" class="field !py-2"></label>`;
+}
+
+function renderSettings(keepDraft = false) {
   const s = app.state.settings;
-  const input = (name, val, type = 'text') => `<input name="${name}" type="${type}" value="${esc(val)}" class="field ${type === 'color' ? '!h-10 !p-1' : ''}">`;
-  $('#settings-form').innerHTML = SETTINGS_SCHEMA.map(([title, fields]) => `
-    <fieldset class="space-y-3">
-      <legend class="mb-3 text-xs font-semibold uppercase tracking-widest text-teal-300/80">${title}</legend>
-      ${title === 'Invoice colors' ? themesHtml() : ''}
-      ${fields.filter(([, , kind]) => !(STATIC && kind === 'local')).map(([p, label, kind]) => {
-        const v = getPath(s, p);
-        if (kind === 'i18n') return `<div><span class="label">${label}</span><div class="grid gap-2">
-          <div class="relative"><span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-zinc-600">BG</span>${input(p + '.bg', v?.bg)}</div>
-          <div class="relative"><span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-zinc-600">EN</span>${input(p + '.en', v?.en)}</div></div></div>`;
-        if (Array.isArray(kind)) return `<label class="block"><span class="label">${label}</span><select name="${p}" class="field">${kind.map((o) => `<option ${o === v ? 'selected' : ''}>${o}</option>`).join('')}</select></label>`;
-        if (kind === 'color') return `<label class="block"><span class="label">${label}</span><div class="relative">
-          <span data-swatch class="absolute left-2.5 top-1/2 size-5 -translate-y-1/2 rounded-md ring-1 ring-white/20" style="background:${esc(v)}"></span>
-          <input name="${p}" value="${esc(v)}" data-hex maxlength="7" spellcheck="false" autocomplete="off" class="field !pl-10 font-mono uppercase" placeholder="#RRGGBB"></div></label>`;
-        return `<label class="block"><span class="label">${label}</span>${input(p, v, kind === 'number' ? 'number" step="any' : 'text')}</label>`;
-      }).join('')}
-    </fieldset>`).join('') +
-    `<div class="sticky bottom-0 -mx-5 border-t border-white/[0.06] bg-zinc-900/90 px-5 py-3 backdrop-blur"><button class="btn-primary w-full">Save settings</button>
-     <p class="mt-2 text-center text-[11px] text-zinc-500">Issued invoices keep the data they were created with.${STATIC ? '' : ' Optional logo: data/logo.png or .svg'}</p></div>`;
-  if (STATIC) $('#settings-form').insertAdjacentHTML('afterbegin', `
-    <fieldset class="space-y-3">
-      <legend class="mb-3 text-xs font-semibold uppercase tracking-widest text-teal-300/80">Backup</legend>
-      <p class="text-xs leading-relaxed text-zinc-400">Everything is stored only in this browser. Export a backup regularly – clearing site data deletes your invoice history, and Bulgarian numbering must never restart.</p>
+  const form = $('#settings-form');
+  const draft = keepDraft ? [...form.elements].filter((e) => e.name).map((e) => [e.name, e.value]) : [];
+  if (!SETTINGS_SCHEMA.some(([id]) => id === app.sec)) app.sec = 'supplier';
+
+  const nav = `<div class="sticky top-0 z-10 -mx-5 bg-zinc-900/85 px-5 pb-4 pt-1 backdrop-blur-xl">
+    <div class="flex gap-1 overflow-x-auto rounded-xl border border-white/[0.06] bg-white/[0.02] p-1" role="tablist">
+      ${SETTINGS_SCHEMA.map(([id, title]) => `<button type="button" role="tab" data-sec="${id}" aria-selected="${id === app.sec}"
+        class="sec-tab flex-1 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-medium transition duration-200 ease-smooth">${t(title)}</button>`).join('')}
+    </div></div>`;
+
+  const sections = SETTINGS_SCHEMA.map(([id, , groups]) => {
+    let body = groups.map(([g, fields]) => {
+      const list = fields.filter((f) => !(STATIC && f[3] === 'local'));
+      return `<div>${g ? legend(g) : ''}<div class="grid grid-cols-2 items-end gap-3">${list.map((f) => fieldHtml(f, s)).join('')}</div></div>`;
+    }).join('');
+    if (id === 'colors') body = themesHtml() + body;
+    if (id === 'general' && STATIC) body += `<div>${legend('grpBackup')}
+      <p class="mb-3 text-xs leading-relaxed text-zinc-400">${t('backupText')}</p>
       <div class="grid grid-cols-2 gap-2">
-        <button type="button" class="btn-ghost" id="backup-export">Export backup</button>
-        <label class="btn-ghost cursor-pointer">Import backup<input type="file" accept="application/json,.json" id="backup-import" class="sr-only"></label>
-      </div>
-    </fieldset>`);
+        <button type="button" class="btn-ghost" id="backup-export">${t('exportBackup')}</button>
+        <label class="btn-ghost cursor-pointer">${t('importBackup')}<input type="file" accept="application/json,.json" id="backup-import" class="sr-only"></label>
+      </div></div>`;
+    return `<section data-sec-panel="${id}" class="fade-in space-y-6" ${id === app.sec ? '' : 'hidden'}>${body}</section>`;
+  }).join('');
+
+  form.innerHTML = nav + sections +
+    `<div class="sticky bottom-0 -mx-5 mt-6 border-t border-white/[0.06] bg-zinc-900/90 px-5 py-3 backdrop-blur"><button class="btn-primary w-full">${t('saveSettings')}</button>
+     <p class="mt-2 text-center text-[11px] text-zinc-500">${t('settingsNote')}${STATIC ? '' : ' ' + t('logoNote')}</p></div>`;
+  for (const [n, v] of draft) { const el = form.elements.namedItem(n); if (el && 'value' in el) el.value = v; }
+  $$('[data-hex]', form).forEach((el) => el.dispatchEvent(new Event('input', { bubbles: true })));
+  setSec(app.sec);
+}
+
+function setSec(id) {
+  app.sec = id; LS.set('settingsSec', id);
+  $$('#settings-form .sec-tab').forEach((b) => {
+    const on = b.dataset.sec === id;
+    b.setAttribute('aria-selected', on);
+    b.classList.toggle('bg-white/10', on); b.classList.toggle('text-zinc-100', on);
+    b.classList.toggle('text-zinc-500', !on); b.classList.toggle('hover:text-zinc-300', !on);
+  });
+  $$('#settings-form [data-sec-panel]').forEach((p) => (p.hidden = p.dataset.secPanel !== id));
 }
 const HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 const normHex = (v) => { v = v.trim(); if (v && v[0] !== '#') v = '#' + v; return v.toLowerCase(); };
@@ -443,17 +473,17 @@ function themesHtml() {
   const themes = app.state.settings.themes || [];
   const dots = (c) => ['background', 'text', 'accent', 'line', 'panel', 'muted'].map((k) => `<span class="size-3 rounded-full ring-1 ring-white/20" style="background:${esc(c[k])}"></span>`).join('');
   return `<div class="space-y-2 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
-    <span class="label !mb-0">Themes</span>
-    <ul class="space-y-1.5">${themes.length ? themes.map((t, i) => `
+    <span class="label !mb-0">${t('themes')}</span>
+    <ul class="space-y-1.5">${themes.length ? themes.map((th, i) => `
       <li class="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-white/[0.04]">
-        <span class="flex -space-x-1">${dots(t.colors)}</span>
-        <span class="flex-1 truncate text-sm">${esc(t.name)}</span>
-        <button type="button" class="btn-ghost !px-2.5 !py-1 text-xs" data-theme-apply="${i}">Apply</button>
-        <button type="button" class="icon-btn !size-7" data-theme-del="${i}" title="Delete theme">
+        <span class="flex -space-x-1">${dots(th.colors)}</span>
+        <span class="flex-1 truncate text-sm">${esc(th.name)}</span>
+        <button type="button" class="btn-ghost !px-2.5 !py-1 text-xs" data-theme-apply="${i}">${t('apply')}</button>
+        <button type="button" class="icon-btn !size-7" data-theme-del="${i}" title="${t('deleteTheme')}">
           <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-      </li>`).join('') : '<li class="px-2 py-1 text-xs text-zinc-500">No saved themes yet.</li>'}</ul>
-    <div class="flex gap-2"><input id="theme-name" class="field !py-2" placeholder="Theme name">
-      <button type="button" class="btn-ghost shrink-0 !py-2" id="theme-save">Save current</button></div>
+      </li>`).join('') : `<li class="px-2 py-1 text-xs text-zinc-500">${t('noThemes')}</li>`}</ul>
+    <div class="flex gap-2"><input id="theme-name" class="field !py-2" placeholder="${t('themeName')}">
+      <button type="button" class="btn-ghost shrink-0 !py-2" id="theme-save">${t('saveCurrent')}</button></div>
   </div>`;
 }
 
@@ -461,7 +491,7 @@ function readColors() {
   const colors = {};
   for (const el of $$('#settings-form [data-hex]')) {
     const v = normHex(el.value);
-    if (!HEX.test(v)) throw new Error(`Invalid HEX color: "${el.value}"`);
+    if (!HEX.test(v)) throw new Error(t('invalidHex', el.value));
     colors[el.name.split('.')[1]] = v;
   }
   return colors;
@@ -482,23 +512,25 @@ $('#settings-form').addEventListener('input', (e) => {
 });
 
 $('#settings-form').addEventListener('click', async (e) => {
+  const sec = e.target.closest('[data-sec]');
+  if (sec) return setSec(sec.dataset.sec);
   const themes = [...(app.state.settings.themes || [])];
   try {
     if (e.target.closest('#theme-save')) {
       const name = $('#theme-name').value.trim();
-      if (!name) return toast('Enter a theme name', 'error');
+      if (!name) return toast(t('enterThemeName'), 'error');
       const colors = readColors();
-      const i = themes.findIndex((t) => t.name.toLowerCase() === name.toLowerCase());
+      const i = themes.findIndex((th) => th.name.toLowerCase() === name.toLowerCase());
       if (i >= 0) themes[i] = { name, colors }; else themes.push({ name, colors });
-      await saveSettingsPatch({ themes, colors }, `Theme "${name}" saved`);
+      await saveSettingsPatch({ themes, colors }, t('themeSaved', name));
     } else if (e.target.closest('[data-theme-apply]')) {
-      const t = themes[e.target.closest('[data-theme-apply]').dataset.themeApply];
-      await saveSettingsPatch({ colors: { ...app.state.settings.colors, ...t.colors } }, `Applied "${t.name}"`);
+      const th = themes[e.target.closest('[data-theme-apply]').dataset.themeApply];
+      await saveSettingsPatch({ colors: { ...app.state.settings.colors, ...th.colors } }, t('themeApplied', th.name));
     } else if (e.target.closest('[data-theme-del]')) {
       const i = Number(e.target.closest('[data-theme-del]').dataset.themeDel);
-      const [t] = themes.splice(i, 1);
-      if (!(await confirmDialog(`Delete theme "${t.name}"?`, '<p>Current invoice colors stay as they are.</p>', 'Delete'))) return;
-      await saveSettingsPatch({ themes }, `Deleted "${t.name}"`);
+      const [th] = themes.splice(i, 1);
+      if (!(await confirmDialog(t('confirmThemeDel', th.name), `<p>${t('confirmThemeDelBody')}</p>`, t('del')))) return;
+      await saveSettingsPatch({ themes }, t('themeDeleted', th.name));
     }
   } catch (err) { toast(err.message, 'error'); }
 });
@@ -511,7 +543,7 @@ $('#settings-form').addEventListener('submit', async (e) => {
     if (!el.name) continue;
     setPath(s, el.name, el.type === 'number' ? Number(el.value) : el.matches('[data-hex]') ? normHex(el.value) : el.value);
   }
-  try { applyState(await api('PUT', 'api/settings', s)); toast('Settings saved'); previewSingle(true); }
+  try { applyState(await api('PUT', 'api/settings', s)); toast(t('settingsSaved')); previewSingle(true); }
   catch (err) { toast(err.message, 'error'); }
 });
 
@@ -534,16 +566,23 @@ $('#settings-form').addEventListener('change', async (e) => {
   try {
     const data = JSON.parse(await e.target.files[0].text());
     const n = data.invoices?.length ?? 0;
-    if (!(await confirmDialog('Replace data with backup?', `<p>This replaces the settings and all ${app.state.invoices.length} invoices in this browser with the backup (${n} invoices).</p>`, 'Replace'))) return;
-    applyState(local.importBackup(data)); historySelected = null; toast('Backup imported'); refresh();
+    if (!(await confirmDialog(t('confirmImport'), `<p>${t('confirmImportBody', app.state.invoices.length, n)}</p>`, t('replace')))) return;
+    applyState(local.importBackup(data)); historySelected = null; toast(t('backupImported')); refresh();
   } catch (err) { toast(err.message, 'error'); }
   finally { e.target.value = ''; }
 });
 
-// ---------- footer credit ----------
-function renderCredit() {
-  $('#credit-text').textContent = app.lang === 'en' ? 'Made with' : 'Направено с';
-  $('#credit-by').textContent = app.lang === 'en' ? 'by' : 'от';
+// ---------- GitHub stars ----------
+async function loadStars() {
+  const show = (n) => { if (!Number.isFinite(n)) return; const el = $('#gh-stars'); el.textContent = n.toLocaleString('bg-BG'); el.classList.remove('hidden'); };
+  const cached = LS.get('ghStars', null);
+  if (cached && Date.now() - cached.at < 3600e3) return show(cached.n);
+  try {
+    const r = await fetch('https://api.github.com/repos/OmegaSkiller/invoice-generator', { headers: { Accept: 'application/vnd.github+json' } });
+    if (!r.ok) return show(cached?.n);
+    const n = (await r.json()).stargazers_count;
+    LS.set('ghStars', { n, at: Date.now() }); show(n);
+  } catch { show(cached?.n); }
 }
 
 // ---------- state ----------
@@ -561,13 +600,12 @@ function applyState(st) {
     if (STATIC) {
       local = await import('./local-api.js');
       document.documentElement.dataset.mode = 'static';
-      $('#s-issue-label').textContent = 'Issue & save PDF';
-      $('#b-issue').textContent = 'Issue all & save PDF';
-      $('#s-hint').textContent = 'Preview is a draft. Issuing assigns the number and opens the print dialog – choose “Save as PDF”. Data stays in this browser.';
     }
+    applyI18n();
     applyState(await api('GET', 'api/state'));
     renderRows();
-    setLang(app.lang || app.state.settings.defaultLang || 'bg');
+    setLang(app.lang);
     setTab(app.tab);
-  } catch (e) { toast('Could not start: ' + e.message, 'error'); }
+  } catch (e) { toast(t('couldNotStart') + e.message, 'error'); }
+  loadStars();
 })();

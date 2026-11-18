@@ -61,3 +61,7 @@ dialog[open] { animation: pop .25s var(--ease-smooth); }
   33% { color: var(--color-indigo-300); }
   66% { color: var(--color-fuchsia-300); }
 }
+
+/* GitHub star button */
+.gh-star-icon { transition: transform .5s var(--ease-smooth), color .3s, fill .3s; }
+.gh-star:hover .gh-star-icon, .gh-star:focus-visible .gh-star-icon { transform: rotate(144deg) scale(1.2); fill: currentColor; }

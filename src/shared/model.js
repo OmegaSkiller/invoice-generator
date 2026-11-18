@@ -167,11 +167,14 @@ export function checkWarnings(newOnes, invoices) {
   const months = new Set(invoices.map((i) => i.month));
   const seen = new Set();
   for (const inv of newOnes) {
-    if (months.has(inv.month)) warnings.push(`${inv.month}: an invoice for this month already exists.`);
-    if (seen.has(inv.month)) warnings.push(`${inv.month}: listed more than once.`);
+    const bg = inv.lang !== 'en';
+    if (months.has(inv.month)) warnings.push(bg ? `${inv.month}: за този месец вече има издадена фактура.` : `${inv.month}: an invoice for this month already exists.`);
+    if (seen.has(inv.month)) warnings.push(bg ? `${inv.month}: месецът е въведен повече от веднъж.` : `${inv.month}: listed more than once.`);
     seen.add(inv.month);
     if (last && inv.issueDate < last.issueDate)
-      warnings.push(`${inv.month}: issue date ${inv.issueDate} is before last issued invoice №${padNumber(last.number)} (${last.issueDate}). Bulgarian law expects numbers to follow date order.`);
+      warnings.push(bg
+        ? `${inv.month}: датата на издаване ${fmtDate(inv.issueDate, 'bg')} е преди последната издадена фактура №${padNumber(last.number)} (${fmtDate(last.issueDate, 'bg')}). По закон номерата трябва да следват хронологичния ред на датите.`
+        : `${inv.month}: issue date ${inv.issueDate} is before last issued invoice №${padNumber(last.number)} (${last.issueDate}). Bulgarian law expects numbers to follow date order.`);
   }
   return warnings;
 }

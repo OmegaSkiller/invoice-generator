@@ -41,16 +41,18 @@ const shot = async (name) => { await wait(900); await page.screenshot({ path: pa
 for (const lang of ['bg', 'en']) {
   const sfx = lang === 'bg' ? '' : '-en';
   await page.goto(`http://localhost:${PORT}`); await wait(800);
-  await page.evaluate((lang) => { localStorage.clear(); localStorage.setItem('lang', JSON.stringify(lang)); localStorage.setItem('tab', '"single"');
+  await page.evaluate((lang) => { localStorage.clear(); localStorage.setItem('uiLang', JSON.stringify(lang)); localStorage.setItem('settingsSec', '"supplier"'); localStorage.setItem('tab', '"single"');
     localStorage.setItem('s-month', '"2026-11"'); localStorage.setItem('s-amount', '"2450"');
     localStorage.setItem('bulkRows', JSON.stringify([{ month: '2026-11', amount: '2450' }, { month: '2026-12', amount: '2600' }, { month: '2027-01', amount: '2380.75' }])); }, lang);
   await page.reload(); await shot(`single${sfx}.png`);
   await page.click('[data-tab=bulk]'); await shot(`bulk${sfx}.png`);
   await page.click('[data-tab=history]'); await shot(`history${sfx}.png`);
+  await page.click('[data-tab=settings]'); await shot(`settings${sfx}.png`);
 }
 await page.click('[data-tab=settings]');
 await wait(900);
-const fs_ = await page.evaluateHandle(() => [...document.querySelectorAll('legend')].find((l) => l.textContent.includes('colors')).parentElement);
+await page.click('[data-sec=colors]'); await wait(500);
+const fs_ = await page.$('[data-sec-panel=colors]');
 await fs_.evaluate((el) => el.scrollIntoView({ block: 'center' }));
 await wait(300);
 await fs_.screenshot({ path: path.join(OUT, 'themes.png') }); console.log('✓ themes.png');
@@ -58,7 +60,7 @@ await fs_.screenshot({ path: path.join(OUT, 'themes.png') }); console.log('✓ t
 // social preview (1200x630)
 await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 1 });
 await page.goto(`http://localhost:${PORT}`); await wait(800);
-await page.evaluate(() => { localStorage.setItem('lang', '"bg"'); localStorage.setItem('tab', '"single"'); });
+await page.evaluate(() => { localStorage.setItem('uiLang', '"bg"'); localStorage.setItem('tab', '"single"'); });
 await page.reload(); await shot('og-image.png');
 
 // full-size invoice render
