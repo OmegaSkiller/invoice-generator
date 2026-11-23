@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="bg" class="dark">
+<html lang="bg">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -34,8 +34,8 @@
   <meta name="twitter:description" content="Free online invoice generator for Bulgarian companies: EUR invoices in Bulgarian or English, live preview, bulk monthly invoices and PDF export. Your data never leaves your browser.">
   <meta name="twitter:image" content="https://omegaskiller.github.io/invoice-generator/og-image.png">
 
-  <meta name="theme-color" content="#09090b">
-  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#f1f1f3">
+  <meta name="color-scheme" content="light">
   <meta name="application-name" content="Invoice Generator">
   <meta name="apple-mobile-web-app-title" content="Фактури">
   <link rel="manifest" href="site.webmanifest">
@@ -196,189 +196,361 @@
 }
   </script>
 </head>
-<body class="min-h-dvh bg-zinc-950 font-sans text-zinc-100 antialiased">
-  <!-- ambient glow -->
-  <div aria-hidden="true" class="pointer-events-none fixed inset-0 overflow-hidden">
-    <div class="absolute -top-40 left-1/4 size-[36rem] rounded-full bg-teal-500/10 blur-3xl"></div>
-    <div class="absolute -bottom-48 right-0 size-[32rem] rounded-full bg-indigo-500/10 blur-3xl"></div>
-  </div>
+<body class="min-h-dvh bg-page bg-linear-to-b from-page to-[#e9e9ec] font-sans text-ink antialiased">
+  <div class="mx-auto flex min-h-dvh max-w-[1480px] flex-col gap-6 p-2 sm:p-4 lg:p-6">
+    <div class="grid flex-1 grid-cols-[minmax(0,1fr)] rounded-[18px] border border-line bg-shell shadow-[0_1px_2px_rgb(24_24_27/.04)] lg:grid-cols-[236px_minmax(0,1fr)]">
 
-  <div class="relative mx-auto flex min-h-dvh max-w-[1500px] flex-col gap-5 p-4 lg:p-6">
-    <!-- header -->
-    <header class="flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-teal-300 to-teal-500 text-lg font-bold text-zinc-950 shadow-lg shadow-teal-500/20">€</div>
-        <div>
-          <h1 class="text-base font-semibold tracking-tight" data-i18n="appTitle">Генератор на фактури</h1>
-          <p class="text-xs text-zinc-500" id="parties">—</p>
+      <!-- sidebar -->
+      <aside class="flex min-w-0 flex-col gap-4 border-b border-line p-3 lg:sticky lg:top-6 lg:h-[calc(100dvh-3rem)] lg:self-start lg:border-b-0 lg:p-4">
+        <div class="flex items-center gap-3 px-1 pt-1">
+          <div class="grid size-9 shrink-0 place-items-center rounded-lg border border-line bg-card text-ink">
+            <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="6" cy="6" r="1.6"/><circle cx="12" cy="6" r="1.6"/><circle cx="18" cy="6" r="1.6"/><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/><circle cx="6" cy="18" r="1.6"/><circle cx="12" cy="18" r="1.6"/></svg>
+          </div>
+          <div class="min-w-0 leading-tight">
+            <h1 class="text-[13px] font-semibold uppercase tracking-[0.08em]" data-i18n="appTitle">Генератор на фактури</h1>
+            <p class="truncate text-[11px] uppercase tracking-[0.14em] text-ink-3">EUR · BG / EN</p>
+          </div>
         </div>
-      </div>
-      <div class="flex flex-wrap items-center gap-3">
-        <a id="gh-star" href="https://github.com/OmegaSkiller/invoice-generator" target="_blank" rel="noopener" data-i18n-title="starTitle" title="Дайте звезда на проекта в GitHub"
-           class="gh-star group inline-flex items-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] text-xs font-semibold text-zinc-200 transition duration-200 ease-smooth hover:border-amber-300/40 hover:bg-white/[0.07]">
-          <span class="flex items-center gap-1.5 px-3 py-2">
-            <svg class="size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
-            <svg class="gh-star-icon size-3.5 text-zinc-400 group-hover:text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <span data-i18n="star">Star</span>
-          </span>
-          <span id="gh-stars" class="hidden border-l border-white/10 px-2.5 py-2 tabular-nums text-zinc-400 group-hover:text-zinc-200"></span>
-        </a>
-        <div class="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-400">
-          <span data-i18n="nextNo">Следващ №</span> <span id="next-number" class="font-semibold text-zinc-100">—</span>
-        </div>
-        <div class="relative flex rounded-xl border border-white/10 bg-white/[0.03] p-1 text-xs font-semibold" id="lang-toggle" role="radiogroup" aria-label="Език" data-i18n-aria="langGroup">
-          <span class="seg-indicator absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-lg bg-teal-400 transition-transform duration-300 ease-smooth"></span>
-          <button data-lang="bg" class="relative z-10 w-12 rounded-lg py-1.5 transition-colors" role="radio">BG</button>
-          <button data-lang="en" class="relative z-10 w-12 rounded-lg py-1.5 transition-colors" role="radio">EN</button>
-        </div>
-      </div>
-    </header>
 
-    <main lang="bg" id="app-main" class="grid flex-1 gap-5 lg:grid-cols-[440px_1fr]" aria-label="Invoice generator app">
-      <!-- left: controls -->
-      <section class="card flex min-h-0 flex-col">
-        <nav class="relative m-2 grid grid-cols-4 rounded-xl bg-white/[0.03] p-1 text-sm" id="tabs">
-          <span id="tab-indicator" class="absolute inset-y-1 left-1 w-[calc(25%-2px)] rounded-lg bg-white/10 transition-transform duration-300 ease-smooth"></span>
-          <button data-tab="single" class="relative z-10 rounded-lg py-2 font-medium" data-i18n="tabSingle">Фактура</button>
-          <button data-tab="bulk" class="relative z-10 rounded-lg py-2 font-medium" data-i18n="tabBulk">Групово</button>
-          <button data-tab="history" class="relative z-10 rounded-lg py-2 font-medium" data-i18n="tabHistory">История</button>
-          <button data-tab="settings" class="relative z-10 rounded-lg py-2 font-medium" data-i18n="tabSettings">Настройки</button>
+        <nav id="tabs" aria-label="Sections" class="-mx-1 flex gap-1 overflow-x-auto px-1 lg:mx-0 lg:block lg:space-y-0.5 lg:overflow-visible lg:px-0">
+          <p class="eyebrow hidden px-2.5 pb-1.5 pt-3 !text-ink-3 lg:block" data-i18n="navWorkspace">Работа</p>
+          <button data-tab="single" class="nav-item w-auto shrink-0 whitespace-nowrap lg:w-full">
+            <svg class="size-4 text-ink-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+            <span data-i18n="tabSingle">Фактура</span></button>
+          <button data-tab="bulk" class="nav-item w-auto shrink-0 whitespace-nowrap lg:w-full">
+            <svg class="size-4 text-ink-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>
+            <span data-i18n="tabBulk">Групово</span></button>
+          <button data-tab="history" class="nav-item w-auto shrink-0 whitespace-nowrap lg:w-full">
+            <svg class="size-4 text-ink-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+            <span data-i18n="tabHistory">История</span></button>
+          <p class="eyebrow hidden px-2.5 pb-1.5 pt-5 !text-ink-3 lg:block" data-i18n="navSetup">Настройка</p>
+          <button data-tab="settings" class="nav-item w-auto shrink-0 whitespace-nowrap lg:w-full">
+            <svg class="size-4 text-ink-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4"/></svg>
+            <span data-i18n="tabSettings">Настройки</span></button>
+          <a id="gh-star" href="https://github.com/OmegaSkiller/invoice-generator" target="_blank" rel="noopener" data-i18n-title="starTitle" title="Дайте звезда на проекта в GitHub" class="gh-star group nav-item w-auto shrink-0 whitespace-nowrap lg:w-full">
+            <svg class="gh-star-icon size-4 text-ink-3 group-hover:text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span><span data-i18n="star">Star</span> · GitHub</span>
+            <span id="gh-stars" class="ml-auto hidden rounded-md bg-zinc-100 px-1.5 text-[11px] tabular-nums text-ink-2"></span>
+          </a>
         </nav>
 
-        <div class="flex-1 overflow-y-auto px-5 pb-5 pt-2">
-          <!-- SINGLE -->
-          <div class="tab-panel fade-in space-y-5" data-panel="single">
-            <div>
-              <label class="label" for="s-month" data-i18n="month">Месец</label>
-              <input id="s-month" type="month" class="field">
-              <p class="mt-2 text-xs text-zinc-500" id="s-dates"></p>
+        <div class="mt-auto hidden space-y-3 border-t border-line pt-4 lg:block">
+          <div class="relative flex rounded-lg border border-line bg-card p-0.5 text-xs font-medium" id="lang-toggle" role="radiogroup" aria-label="Език" data-i18n-aria="langGroup">
+            <span class="seg-indicator absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded-md bg-zinc-100 ring-1 ring-line transition-transform duration-300 ease-smooth"></span>
+            <button data-lang="bg" class="relative z-10 flex-1 rounded-md py-1.5 transition-colors" role="radio">Български</button>
+            <button data-lang="en" class="relative z-10 flex-1 rounded-md py-1.5 transition-colors" role="radio">English</button>
+          </div>
+          <div class="flex items-center gap-3 px-1">
+            <div id="avatar" class="grid size-8 shrink-0 place-items-center rounded-full bg-zinc-200 text-xs font-semibold text-ink-2">—</div>
+            <div class="min-w-0 leading-tight">
+              <p class="truncate text-[13px] font-medium" id="parties">—</p>
+              <p class="text-[11px] text-ink-3"><span data-i18n="nextNo">Следващ №</span> <span id="next-number" class="tabular-nums">—</span></p>
             </div>
-            <div>
-              <label class="label" for="s-amount" data-i18n="amount">Сума (EUR)</label>
-              <div class="relative">
-                <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-light text-zinc-500">€</span>
-                <input id="s-amount" inputmode="decimal" autocomplete="off" class="field !py-4 !pl-11 text-2xl font-semibold tracking-tight" placeholder="0.00">
+          </div>
+        </div>
+      </aside>
+
+      <!-- main -->
+      <main lang="bg" id="app-main" class="min-w-0 px-3 pb-6 pt-4 sm:px-5 lg:px-6 lg:pt-6" aria-label="Invoice generator app">
+        <!-- page header -->
+        <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div class="min-w-0">
+            <nav class="mb-2 flex items-center gap-1.5 text-xs text-ink-3" aria-label="Breadcrumb">
+              <span data-i18n="crumbInvoices">Фактури</span>
+              <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+              <span id="page-crumb" class="text-ink-2">—</span>
+            </nav>
+            <div class="flex items-center gap-2.5">
+              <h2 id="page-title" class="truncate text-xl font-medium tracking-tight sm:text-[22px]">—</h2>
+              <span id="page-badge" class="rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] font-medium text-ink-2"></span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btn-preview" aria-label="Preview" class="btn-ghost !py-1.5 text-[13px]" type="button">
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"/><circle cx="12" cy="12" r="3"/></svg>
+              <span class="hidden sm:inline" data-i18n="previewInvoice">Преглед</span></button>
+            <button id="btn-print" class="btn-ghost !py-1.5 text-[13px]" type="button">
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>
+              <span data-i18n="print">Печат</span></button>
+            <!-- language (mobile) -->
+            <div class="flex rounded-lg bg-zinc-100 p-0.5 text-xs font-medium lg:hidden" id="lang-mini">
+              <button data-lang="bg" class="rounded-md px-2 py-1">BG</button>
+              <button data-lang="en" class="rounded-md px-2 py-1">EN</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-[minmax(0,1fr)] gap-5 xl:grid-cols-[minmax(0,1fr)_300px] xl:grid-rows-[auto_1fr]">
+          <!-- editor -->
+          <section class="card min-w-0 xl:col-start-1 xl:row-start-1">
+            <!-- SINGLE -->
+            <div class="tab-panel fade-in" data-panel="single">
+              <details class="group border-b border-line-soft">
+                <summary class="flex cursor-pointer items-center gap-3 px-5 py-4 sm:px-6">
+                  <svg class="size-4 shrink-0 text-ink-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+                  <span class="min-w-0 truncate"><span id="client-name" class="text-[15px] font-medium">—</span> <span id="client-addr" class="ml-1 text-xs text-ink-3"></span></span>
+                  <span class="ml-auto flex shrink-0 items-center gap-1 text-[13px] text-ink-2"><span class="hidden sm:inline" data-i18n="billingDetails">Данни</span>
+                    <svg class="chev size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
+                </summary>
+                <div id="parties-detail" class="grid gap-4 px-5 pb-5 text-[13px] sm:grid-cols-2 sm:px-6"></div>
+              </details>
+
+              <div class="border-b border-line-soft px-5 py-6 sm:px-6">
+                <h3 class="eyebrow mb-4" data-i18n="secAmount">Сума</h3>
+                <label class="mb-2 block text-[13px] text-ink" for="s-amount"><span data-i18n="billThis">Сума по тази фактура</span></label>
+                <div class="flex flex-wrap items-center gap-4">
+                  <div class="relative w-40">
+                    <input id="s-amount" inputmode="decimal" autocomplete="off" class="field !h-11 !pr-8 text-lg ring-2 ring-accent/15 !border-accent/70" placeholder="0.00">
+                    <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-ink-3">€</span>
+                  </div>
+                  <svg class="hidden size-4 text-ink-3 sm:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                  <div>
+                    <p id="s-big" class="text-[28px] font-medium leading-none tracking-tight tabular-nums">—</p>
+                    <p id="s-sub" class="mt-1.5 text-xs text-ink-2"></p>
+                  </div>
+                </div>
+                <p class="mt-3 text-xs text-ink-2" id="s-words"></p>
+
+                <div class="mt-6 grid border-y border-line-soft sm:grid-cols-3 sm:divide-x sm:divide-line-soft">
+                  <div class="py-3.5 sm:pr-4"><p class="text-xs text-ink-2" data-i18n="stIssue">Дата</p><p id="st-issue" class="mt-1 text-[17px] font-medium tabular-nums">—</p><p class="mt-0.5 text-[11px] text-ink-3" data-i18n="stIssueSub"></p></div>
+                  <div class="border-t border-line-soft py-3.5 sm:border-t-0 sm:px-4"><p class="text-xs text-ink-2" data-i18n="stDue">Срок</p><p id="st-due" class="mt-1 text-[17px] font-medium tabular-nums">—</p><p class="mt-0.5 text-[11px] text-ink-3" data-i18n="stDueSub"></p></div>
+                  <div class="border-t border-line-soft py-3.5 sm:border-t-0 sm:pl-4"><p class="text-xs text-ink-2" data-i18n="stNumber">Номер</p><p id="st-number" class="mt-1 text-[17px] font-medium tabular-nums">—</p><p class="mt-0.5 text-[11px] text-ink-3" data-i18n="stNumberSub"></p></div>
+                </div>
+                <div id="s-warnings" class="mt-4 empty:hidden"></div>
+              </div>
+
+              <div class="border-b border-line-soft px-5 py-6 sm:px-6">
+                <div class="mb-1 flex items-center justify-between gap-3">
+                  <h3 class="eyebrow" data-i18n="secItem">Ред</h3>
+                  <button type="button" class="btn-outline !py-1 text-[13px]" data-goto="settings" data-sec-goto="invoice">
+                    <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.38 3.62a1 1 0 0 1 3 3L7.37 18.64a2 2 0 0 1-.86.5l-2.87.84a.5.5 0 0 1-.62-.62l.84-2.87a2 2 0 0 1 .5-.86z"/></svg>
+                    <span data-i18n="editItem">Редактирайте</span></button>
+                </div>
+                <p class="mb-4 text-xs text-ink-2" data-i18n="itemNote"></p>
+                <div class="overflow-x-auto">
+                  <table class="w-full min-w-[520px] text-[13px]">
+                    <thead><tr class="text-left text-[11px] uppercase tracking-[0.1em] text-ink-2">
+                      <th class="pb-2 font-medium" data-i18n="colItem">Описание</th><th class="pb-2 text-right font-medium" data-i18n="colQty">Кол.</th>
+                      <th class="pb-2 pl-4 font-medium" data-i18n="colUnit">Мярка</th><th class="pb-2 text-center font-medium" data-i18n="colVat">ДДС</th>
+                      <th class="pb-2 text-right font-medium" data-i18n="colTotal">Сума</th></tr></thead>
+                    <tbody><tr class="border-t border-line-soft align-top">
+                      <td class="py-3 pr-4"><span id="li-desc" class="text-ink">—</span></td>
+                      <td class="py-3 text-right tabular-nums">1</td>
+                      <td class="py-3 pl-4"><span id="li-unit" class="rounded-md border border-line px-2 py-1 text-ink-2">—</span></td>
+                      <td class="py-3 text-center"><span id="li-vat" class="text-ink-2">—</span></td>
+                      <td class="py-3 text-right font-medium tabular-nums" id="li-total">—</td>
+                    </tr></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="px-5 py-6 sm:px-6">
+                <h3 class="eyebrow mb-4" data-i18n="secPeriod">Период</h3>
+                <div class="grid gap-4 sm:grid-cols-3">
+                  <div>
+                    <label class="label" for="s-month" data-i18n="month">Месец</label>
+                    <input id="s-month" type="month" class="field">
+                  </div>
+                  <div>
+                    <span class="label" data-i18n="payTerms">Плащане</span>
+                    <p id="s-pay" class="field flex items-center !bg-zinc-50 text-ink-2">—</p>
+                  </div>
+                  <div>
+                    <span class="label" data-i18n="vatRate">ДДС</span>
+                    <p id="s-vat" class="field flex items-center !bg-zinc-50 text-ink-2">—</p>
+                  </div>
+                </div>
+                <p class="mt-2 text-xs text-ink-2" id="s-dates"></p>
               </div>
             </div>
-            <div id="s-warnings"></div>
-            <button id="s-issue" class="btn-primary w-full !py-3">
-              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-              <span id="s-issue-label">Издайте и изтеглете PDF</span>
-            </button>
-            <p class="text-center text-xs text-zinc-500" id="s-hint"></p>
-          </div>
 
-          <!-- BULK -->
-          <div class="tab-panel fade-in space-y-4" data-panel="bulk" hidden>
-            <div class="flex items-center justify-between gap-3">
-              <p class="text-sm text-zinc-400" data-i18n="bulkIntro"></p>
-              <button id="b-paste-toggle" class="shrink-0 whitespace-nowrap text-xs font-medium text-teal-300 hover:text-teal-200" data-i18n="pasteList"></button>
+            <!-- BULK -->
+            <div class="tab-panel fade-in" data-panel="bulk" hidden>
+              <div class="border-b border-line-soft px-5 py-6 sm:px-6">
+                <div class="mb-1 flex items-center justify-between gap-3">
+                  <h3 class="eyebrow" data-i18n="secMonths">Месеци</h3>
+                  <button id="b-paste-toggle" type="button" class="btn-outline !py-1 text-[13px]" data-i18n="pasteList"></button>
+                </div>
+                <p class="mb-4 text-xs text-ink-2" data-i18n="bulkIntro"></p>
+                <div id="b-paste" class="mb-4 hidden space-y-2">
+                  <textarea id="b-paste-text" rows="4" class="field !h-auto py-2 font-mono text-xs" placeholder="2026-01 4249.44&#10;2026-02 4100&#10;2026-03, 4300,50"></textarea>
+                  <button id="b-paste-apply" type="button" class="btn-ghost w-full" data-i18n="replaceRows"></button>
+                </div>
+                <div class="grid grid-cols-[3rem_minmax(0,1fr)_8rem_2rem] gap-2 pb-2 text-[11px] uppercase tracking-[0.1em] text-ink-2">
+                  <span>№</span><span data-i18n="month">Месец</span><span class="text-right" data-i18n="colTotal">Сума</span><span></span>
+                </div>
+                <ul id="b-rows" class="divide-y divide-line-soft border-y border-line-soft"></ul>
+                <button id="b-add" type="button" class="btn-outline mt-3 !py-1.5 text-[13px]">
+                  <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> <span data-i18n="addMonth"></span>
+                </button>
+              </div>
             </div>
-            <div id="b-paste" class="hidden space-y-2">
-              <textarea id="b-paste-text" rows="4" class="field font-mono text-xs" placeholder="2026-01 4249.44&#10;2026-02 4100&#10;2026-03, 4300,50"></textarea>
-              <button id="b-paste-apply" class="btn-ghost w-full" data-i18n="replaceRows"></button>
+
+            <!-- HISTORY -->
+            <div class="tab-panel fade-in" data-panel="history" hidden>
+              <div class="px-5 py-6 sm:px-6">
+                <h3 class="eyebrow mb-4" data-i18n="secIssued">Издадени</h3>
+                <ul id="h-list" class="divide-y divide-line-soft border-y border-line-soft"></ul>
+              </div>
             </div>
-            <ul id="b-rows" class="space-y-2"></ul>
-            <button id="b-add" class="btn-ghost w-full border-dashed">
-              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> <span data-i18n="addMonth"></span>
-            </button>
-            <div class="flex items-center justify-between rounded-xl bg-white/[0.03] px-4 py-3 text-sm">
-              <span class="text-zinc-400" id="b-count"></span>
-              <span class="font-semibold" id="b-total">€0.00</span>
+
+            <!-- SETTINGS -->
+            <div class="tab-panel fade-in" data-panel="settings" hidden>
+              <form id="settings-form" class="px-5 sm:px-6"></form>
             </div>
-            <div id="b-warnings"></div>
-            <button id="b-issue" class="btn-primary w-full !py-3"></button>
-          </div>
+          </section>
 
-          <!-- HISTORY -->
-          <div class="tab-panel fade-in" data-panel="history" hidden>
-            <ul id="h-list" class="space-y-2"></ul>
-          </div>
+          <!-- summary rail -->
+          <aside id="rail" class="min-w-0 xl:sticky xl:top-6 xl:col-start-2 xl:row-span-2 xl:row-start-1 xl:self-start">
+            <div class="card p-5 xl:border-0 xl:bg-transparent xl:p-0 xl:pt-1">
+              <!-- single -->
+              <div data-rail="single">
+                <div class="flex items-baseline justify-between border-b border-line pb-3"><h3 class="eyebrow" data-i18n="summary">Обобщение</h3><span class="text-[11px] text-ink-3" data-i18n="amountsIn">EUR</span></div>
+                <div class="border-b border-line py-2.5">
+                  <div class="kv"><span data-i18n="taxBase">Данъчна основа</span><span id="sum-base" class="tabular-nums text-ink">—</span></div>
+                  <div class="kv"><span id="sum-vat-label">ДДС</span><span id="sum-vat" class="tabular-nums text-ink">—</span></div>
+                  <p id="sum-vat-note" class="pb-1 text-[11px] leading-snug text-ink-3"></p>
+                </div>
+                <div class="border-b border-line py-4">
+                  <p class="text-xs text-ink-2" data-i18n="amountDue">Сума за плащане</p>
+                  <p id="sum-due" class="mt-1 text-[30px] font-medium leading-tight tracking-tight tabular-nums">—</p>
+                  <p class="mt-1 text-[11px] text-ink-3" data-i18n="notIssued"></p>
+                </div>
+                <div class="border-b border-line py-2.5">
+                  <div class="kv"><span data-i18n="stIssue">Дата</span><span id="sum-issue" class="tabular-nums text-ink">—</span></div>
+                  <div class="kv"><span data-i18n="stDue">Срок</span><span id="sum-due-date" class="tabular-nums text-ink">—</span></div>
+                  <div class="kv"><span data-i18n="payTerms">Плащане</span><span id="sum-pay" class="text-right text-ink">—</span></div>
+                </div>
+                <div class="py-4">
+                  <h3 class="eyebrow mb-2" data-i18n="sendTo">Получател</h3>
+                  <p id="to-name" class="text-sm font-medium">—</p>
+                  <p id="to-email" class="text-xs text-ink-2"></p>
+                </div>
+                <button id="s-issue" class="btn-primary w-full !py-2.5">
+                  <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>
+                  <span id="s-issue-label">Издайте</span>
+                </button>
+                <p class="mt-2.5 text-center text-xs leading-relaxed text-ink-2" id="s-hint"></p>
+              </div>
 
-          <!-- SETTINGS -->
-          <div class="tab-panel fade-in" data-panel="settings" hidden>
-            <form id="settings-form"></form>
-          </div>
+              <!-- bulk -->
+              <div data-rail="bulk" hidden>
+                <div class="flex items-baseline justify-between border-b border-line pb-3"><h3 class="eyebrow" data-i18n="summary">Обобщение</h3><span class="text-[11px] text-ink-3" data-i18n="amountsIn">EUR</span></div>
+                <div class="border-b border-line py-2.5">
+                  <div class="kv"><span data-i18n="invoices">Фактури</span><span id="b-count" class="tabular-nums text-ink">0</span></div>
+                  <div class="kv"><span data-i18n="numbers">Номера</span><span id="b-range" class="tabular-nums text-ink">—</span></div>
+                </div>
+                <div class="border-b border-line py-4">
+                  <p class="text-xs text-ink-2" data-i18n="totalBase">Общо</p>
+                  <p id="b-total" class="mt-1 text-[30px] font-medium leading-tight tracking-tight tabular-nums">—</p>
+                </div>
+                <div id="b-warnings" class="pt-4 empty:hidden"></div>
+                <button id="b-issue" class="btn-primary mt-4 w-full !py-2.5"></button>
+                <p class="mt-2.5 text-center text-xs leading-relaxed text-ink-2" data-i18n="bulkHint"></p>
+              </div>
+
+              <!-- history -->
+              <div data-rail="history" hidden>
+                <div class="flex items-baseline justify-between border-b border-line pb-3"><h3 class="eyebrow" data-i18n="summary">Обобщение</h3><span class="text-[11px] text-ink-3" data-i18n="amountsIn">EUR</span></div>
+                <div class="border-b border-line py-2.5">
+                  <div class="kv"><span data-i18n="invoices">Фактури</span><span id="h-count" class="tabular-nums text-ink">0</span></div>
+                  <div class="kv"><span data-i18n="lastIssued">Последна</span><span id="h-last" class="tabular-nums text-ink">—</span></div>
+                </div>
+                <div class="py-4">
+                  <p class="text-xs text-ink-2" data-i18n="totalBilled">Общо</p>
+                  <p id="h-total" class="mt-1 text-[30px] font-medium leading-tight tracking-tight tabular-nums">—</p>
+                </div>
+                <div id="h-actions" class="space-y-2"></div>
+              </div>
+
+              <!-- settings -->
+              <div data-rail="settings" hidden>
+                <h3 class="eyebrow border-b border-line pb-3" data-i18n="aboutSettings">Настройки</h3>
+                <p class="py-4 text-[13px] leading-relaxed text-ink-2" data-i18n="settingsNote"></p>
+                <button type="submit" form="settings-form" class="btn-primary w-full !py-2.5" data-i18n="saveSettings"></button>
+                <p class="mt-2.5 text-center text-xs leading-relaxed text-ink-2" data-i18n="settingsHint"></p>
+              </div>
+            </div>
+          </aside>
+
+          <!-- preview -->
+          <section id="preview-card" class="card min-w-0 scroll-mt-6 overflow-hidden xl:col-start-1 xl:row-start-2">
+            <div class="flex items-center justify-between gap-3 border-b border-line-soft px-5 py-3.5 sm:px-6">
+              <div class="flex min-w-0 items-center gap-2 text-sm">
+                <span class="relative flex size-2"><span id="live-dot" class="absolute inline-flex size-full rounded-full bg-ok opacity-0"></span><span class="relative inline-flex size-2 rounded-full bg-ok"></span></span>
+                <h3 class="eyebrow" data-i18n="customerCopy">Преглед</h3>
+                <span id="preview-label" class="truncate text-xs text-ink-3"></span>
+              </div>
+              <div class="flex items-center gap-1" id="preview-actions"></div>
+            </div>
+            <div id="stage" class="relative overflow-auto bg-zinc-50 bg-[radial-gradient(circle_at_center,rgba(24,24,27,0.07)_1px,transparent_1px)] [background-size:16px_16px] p-6">
+              <div id="sheet" class="overflow-hidden rounded-md bg-white shadow-[0_1px_3px_rgb(24_24_27/.08),0_12px_32px_-12px_rgb(24_24_27/.18)] ring-1 ring-line transition-opacity duration-300 ease-smooth" style="width:794px;height:1123px">
+                <iframe id="frame" title="Invoice preview" class="size-full border-0" style="width:794px;height:1123px"></iframe>
+              </div>
+              <div id="empty" class="absolute inset-0 hidden place-items-center text-sm text-ink-3" data-i18n="previewEmpty"></div>
+            </div>
+          </section>
         </div>
-      </section>
-
-      <!-- right: preview -->
-      <section class="card flex min-h-[70vh] flex-col overflow-hidden">
-        <div class="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
-          <div class="flex items-center gap-2 text-sm">
-            <span class="relative flex size-2"><span id="live-dot" class="absolute inline-flex size-full rounded-full bg-teal-400 opacity-0"></span><span class="relative inline-flex size-2 rounded-full bg-teal-400"></span></span>
-            <span class="font-medium" data-i18n="preview">Преглед</span>
-            <span id="preview-label" class="text-zinc-500"></span>
-          </div>
-          <div class="flex items-center gap-1" id="preview-actions"></div>
-        </div>
-        <div id="stage" class="relative flex-1 overflow-auto bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:18px_18px] p-6">
-          <div id="sheet" class="overflow-hidden rounded-md bg-white shadow-2xl shadow-black/50 ring-1 ring-white/10 transition-opacity duration-300 ease-smooth" style="width:794px;height:1123px">
-            <iframe id="frame" title="Invoice preview" class="size-full border-0" style="width:794px;height:1123px"></iframe>
-          </div>
-          <div id="empty" class="absolute inset-0 hidden place-items-center text-sm text-zinc-500" data-i18n="previewEmpty"></div>
-        </div>
-      </section>
-    </main>
-
+      </main>
+    </div>
     <!-- crawlable content -->
-    <section id="about" lang="bg" class="card mt-2 grid gap-8 p-6 lg:grid-cols-2 lg:p-8" aria-labelledby="about-title">
+    <section id="about" lang="bg" class="card grid gap-8 p-6 lg:grid-cols-2 lg:p-8" aria-labelledby="about-title">
       <div class="space-y-4">
         <h2 id="about-title" class="text-xl font-semibold tracking-tight">Безплатен генератор на фактури в евро</h2>
-        <p class="text-sm leading-relaxed text-zinc-400">Създавайте фактури за Вашата фирма (ЕООД, ООД, ЕТ) за секунди. Въведете месеца и сумата – фактурата се генерира с дата на издаване 1-во число и срок за плащане 1-во число на следващия месец. Запишете я като PDF директно от браузъра.</p>
-        <ul class="grid gap-2 text-sm text-zinc-300 sm:grid-cols-2">
+        <p class="text-sm leading-relaxed text-ink-2">Създавайте фактури за Вашата фирма (ЕООД, ООД, ЕТ) за секунди. Въведете месеца и сумата – фактурата се генерира с дата на издаване 1-во число и срок за плащане 1-во число на следващия месец. Запишете я като PDF директно от браузъра.</p>
+        <ul class="grid gap-2 text-sm text-ink-2 sm:grid-cols-2">
           <li>✓ Фактури в евро (€)</li><li>✓ На български или английски</li>
           <li>✓ Преглед на живо</li><li>✓ Групово издаване по месеци</li>
           <li>✓ 10-цифрена поредна номерация</li><li>✓ Сума словом</li>
           <li>✓ Реквизити по чл. 114 от ЗДДС</li><li>✓ Цветови теми</li>
           <li>✓ Без регистрация, без сървър</li><li>✓ Отворен код (MIT)</li>
         </ul>
-        <div lang="en" class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-          <h2 class="text-sm font-semibold text-zinc-200">Free invoice generator for Bulgarian companies</h2>
-          <p class="mt-1 text-sm leading-relaxed text-zinc-400">Free online invoice generator for Bulgarian companies: EUR invoices in Bulgarian or English, live preview, bulk monthly invoices and PDF export. Your data never leaves your browser. Open source on <a class="text-teal-300 underline-offset-4 hover:underline" href="https://github.com/OmegaSkiller/invoice-generator">GitHub</a>, with a CLI and a local Node.js version that saves real PDF files.</p>
+        <div lang="en" class="rounded-xl border border-line bg-shell p-4">
+          <h2 class="text-sm font-semibold text-ink">Free invoice generator for Bulgarian companies</h2>
+          <p class="mt-1 text-sm leading-relaxed text-ink-2">Free online invoice generator for Bulgarian companies: EUR invoices in Bulgarian or English, live preview, bulk monthly invoices and PDF export. Your data never leaves your browser. Open source on <a class="text-accent underline-offset-4 hover:underline" href="https://github.com/OmegaSkiller/invoice-generator">GitHub</a>, with a CLI and a local Node.js version that saves real PDF files.</p>
         </div>
       </div>
       <div class="space-y-3">
         <h2 class="text-xl font-semibold tracking-tight">Често задавани въпроси</h2>
-          <details class="group rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 open:bg-white/[0.04]">
-            <summary class="cursor-pointer list-none font-medium text-zinc-200 marker:hidden"><span class="mr-2 inline-block text-teal-300 transition group-open:rotate-90">›</span>Безплатен ли е генераторът на фактури?</summary>
-            <p class="mt-2 pl-5 text-sm leading-relaxed text-zinc-400">Да. Инструментът е напълно безплатен и с отворен код (лиценз MIT). Не изисква регистрация.</p>
+          <details class="group rounded-xl border border-line bg-shell px-4 py-3 open:bg-card">
+            <summary class="cursor-pointer list-none font-medium text-ink marker:hidden"><span class="mr-2 inline-block text-accent transition group-open:rotate-90">›</span>Безплатен ли е генераторът на фактури?</summary>
+            <p class="mt-2 pl-5 text-sm leading-relaxed text-ink-2">Да. Инструментът е напълно безплатен и с отворен код (лиценз MIT). Не изисква регистрация.</p>
           </details>
-          <details class="group rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 open:bg-white/[0.04]">
-            <summary class="cursor-pointer list-none font-medium text-zinc-200 marker:hidden"><span class="mr-2 inline-block text-teal-300 transition group-open:rotate-90">›</span>Къде се съхраняват моите данни?</summary>
-            <p class="mt-2 pl-5 text-sm leading-relaxed text-zinc-400">Само във Вашия браузър (localStorage). Нищо не се изпраща към сървър. Препоръчваме редовно да експортирате резервно копие от „Настройки → Общи“.</p>
+          <details class="group rounded-xl border border-line bg-shell px-4 py-3 open:bg-card">
+            <summary class="cursor-pointer list-none font-medium text-ink marker:hidden"><span class="mr-2 inline-block text-accent transition group-open:rotate-90">›</span>Къде се съхраняват моите данни?</summary>
+            <p class="mt-2 pl-5 text-sm leading-relaxed text-ink-2">Само във Вашия браузър (localStorage). Нищо не се изпраща към сървър. Препоръчваме редовно да експортирате резервно копие от „Настройки → Общи“.</p>
           </details>
-          <details class="group rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 open:bg-white/[0.04]">
-            <summary class="cursor-pointer list-none font-medium text-zinc-200 marker:hidden"><span class="mr-2 inline-block text-teal-300 transition group-open:rotate-90">›</span>Как да запазя фактурата като PDF?</summary>
-            <p class="mt-2 pl-5 text-sm leading-relaxed text-zinc-400">Натиснете „Издайте и запазете PDF“ и изберете „Save as PDF“ (Запази като PDF) в прозореца за печат на браузъра.</p>
+          <details class="group rounded-xl border border-line bg-shell px-4 py-3 open:bg-card">
+            <summary class="cursor-pointer list-none font-medium text-ink marker:hidden"><span class="mr-2 inline-block text-accent transition group-open:rotate-90">›</span>Как да запазя фактурата като PDF?</summary>
+            <p class="mt-2 pl-5 text-sm leading-relaxed text-ink-2">Натиснете „Издайте и запазете PDF“ и изберете „Save as PDF“ (Запази като PDF) в прозореца за печат на браузъра.</p>
           </details>
-          <details class="group rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 open:bg-white/[0.04]">
-            <summary class="cursor-pointer list-none font-medium text-zinc-200 marker:hidden"><span class="mr-2 inline-block text-teal-300 transition group-open:rotate-90">›</span>Съответстват ли фактурите на българското законодателство?</summary>
-            <p class="mt-2 pl-5 text-sm leading-relaxed text-zinc-400">Фактурите съдържат реквизитите по чл. 114 от ЗДДС: 10-цифрен пореден номер, дата на издаване, данни на доставчика и получателя, данъчна основа, ставка на ДДС, основание за неначисляване на ДДС и сума словом. Проверете ги с Вашия счетоводител.</p>
+          <details class="group rounded-xl border border-line bg-shell px-4 py-3 open:bg-card">
+            <summary class="cursor-pointer list-none font-medium text-ink marker:hidden"><span class="mr-2 inline-block text-accent transition group-open:rotate-90">›</span>Съответстват ли фактурите на българското законодателство?</summary>
+            <p class="mt-2 pl-5 text-sm leading-relaxed text-ink-2">Фактурите съдържат реквизитите по чл. 114 от ЗДДС: 10-цифрен пореден номер, дата на издаване, данни на доставчика и получателя, данъчна основа, ставка на ДДС, основание за неначисляване на ДДС и сума словом. Проверете ги с Вашия счетоводител.</p>
           </details>
-          <details class="group rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 open:bg-white/[0.04]">
-            <summary class="cursor-pointer list-none font-medium text-zinc-200 marker:hidden"><span class="mr-2 inline-block text-teal-300 transition group-open:rotate-90">›</span>В каква валута са фактурите?</summary>
-            <p class="mt-2 pl-5 text-sm leading-relaxed text-zinc-400">Винаги в евро (€). По избор може да се покаже и равностойността в лева по фиксирания курс 1 € = 1,95583 лв.</p>
+          <details class="group rounded-xl border border-line bg-shell px-4 py-3 open:bg-card">
+            <summary class="cursor-pointer list-none font-medium text-ink marker:hidden"><span class="mr-2 inline-block text-accent transition group-open:rotate-90">›</span>В каква валута са фактурите?</summary>
+            <p class="mt-2 pl-5 text-sm leading-relaxed text-ink-2">Винаги в евро (€). По избор може да се покаже и равностойността в лева по фиксирания курс 1 € = 1,95583 лв.</p>
           </details>
-          <details class="group rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 open:bg-white/[0.04]">
-            <summary class="cursor-pointer list-none font-medium text-zinc-200 marker:hidden"><span class="mr-2 inline-block text-teal-300 transition group-open:rotate-90">›</span>Мога ли да издам фактури за няколко месеца наведнъж?</summary>
-            <p class="mt-2 pl-5 text-sm leading-relaxed text-zinc-400">Да. В раздел „Групово“ добавете по един ред за всеки месец със сумата и издайте всички фактури наведнъж с поредни номера.</p>
+          <details class="group rounded-xl border border-line bg-shell px-4 py-3 open:bg-card">
+            <summary class="cursor-pointer list-none font-medium text-ink marker:hidden"><span class="mr-2 inline-block text-accent transition group-open:rotate-90">›</span>Мога ли да издам фактури за няколко месеца наведнъж?</summary>
+            <p class="mt-2 pl-5 text-sm leading-relaxed text-ink-2">Да. В раздел „Групово“ добавете по един ред за всеки месец със сумата и издайте всички фактури наведнъж с поредни номера.</p>
           </details>
       </div>
     </section>
 
-    <footer class="flex flex-wrap items-center justify-between gap-3 px-1 pb-2 text-sm text-zinc-500">
+    <footer class="flex flex-wrap items-center justify-between gap-3 px-1 pb-2 text-sm text-ink-3">
       <p class="credit"><span id="credit-text">Направено с</span> <span aria-label="мозък" role="img">🧠</span> <span id="credit-by">от</span>
         <a class="credit-link" href="https://github.com/OmegaSkiller" target="_blank" rel="noopener author" aria-label="OmegaSkiller on GitHub"><span style="--i:0">O</span><span style="--i:1">m</span><span style="--i:2">e</span><span style="--i:3">g</span><span style="--i:4">a</span><span style="--i:5">S</span><span style="--i:6">k</span><span style="--i:7">i</span><span style="--i:8">l</span><span style="--i:9">l</span><span style="--i:10">e</span><span style="--i:11">r</span></a></p>
-      <p><a class="hover:text-zinc-300" href="https://github.com/OmegaSkiller/invoice-generator" target="_blank" rel="noopener">GitHub</a> · MIT · <a class="hover:text-zinc-300" href="#about" data-i18n="about">За инструмента</a></p>
+      <p><a class="hover:text-ink-2" href="https://github.com/OmegaSkiller/invoice-generator" target="_blank" rel="noopener">GitHub</a> · MIT · <a class="hover:text-ink-2" href="#about" data-i18n="about">За инструмента</a></p>
     </footer>
   </div>
 
   <!-- confirm dialog -->
-  <dialog id="confirm" class="m-auto w-[min(92vw,420px)] rounded-2xl border border-white/10 bg-zinc-900 p-0 text-zinc-100 shadow-2xl">
+  <dialog id="confirm" class="m-auto w-[min(92vw,420px)] rounded-[14px] border border-line bg-card p-0 text-ink shadow-2xl">
     <form method="dialog" class="p-6">
       <h2 class="text-base font-semibold" id="confirm-title">Issue invoice?</h2>
-      <div class="mt-2 text-sm text-zinc-400" id="confirm-body"></div>
+      <div class="mt-2 text-sm text-ink-2" id="confirm-body"></div>
       <div class="mt-6 flex justify-end gap-2">
         <button value="cancel" class="btn-ghost" data-i18n="cancel">Отказ</button>
         <button value="ok" class="btn-primary" id="confirm-ok">Issue</button>

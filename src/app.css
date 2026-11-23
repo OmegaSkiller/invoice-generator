@@ -21,45 +21,71 @@
 @theme {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  /* calm neutral surface, one accent (focus + primary action only) */
+  --color-page: #f1f1f3;
+  --color-shell: #fafafa;
+  --color-card: #ffffff;
+  --color-line: #e7e7ea;
+  --color-line-soft: #f0f0f2;
+  --color-field: #dadadf;
+  --color-ink: #18181b;
+  --color-ink-2: #52525b;
+  --color-ink-3: #8e8e96;
+  --color-accent: #3b6fe0;
+  --color-accent-2: #5283ee;
+  --color-ok: #16a34a;
 }
 
 @layer base {
-  :root { color-scheme: dark; }
+  :root { color-scheme: light; }
   body { font-feature-settings: "cv11" 1, "tnum" 1; }
-  input[type="month"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: .5; cursor: pointer; }
-  ::selection { background: rgb(45 212 191 / .3); }
+  input[type="month"]::-webkit-calendar-picker-indicator { opacity: .45; cursor: pointer; }
+  ::selection { background: rgb(59 111 224 / .18); }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 }
 
-@utility field { @apply w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none transition duration-200 ease-smooth hover:border-white/20 focus:border-teal-400/60 focus:bg-white/[0.06] focus:ring-4 focus:ring-teal-400/10; }
-@utility label { @apply mb-1.5 block text-xs font-medium tracking-wide text-zinc-400; }
-@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition duration-200 ease-smooth active:scale-[.98] disabled:pointer-events-none disabled:opacity-40; }
-@utility btn-primary { @apply btn bg-teal-400 text-zinc-950 shadow-lg shadow-teal-500/20 hover:bg-teal-300; }
-@utility btn-ghost { @apply btn border border-white/10 bg-white/[0.03] text-zinc-200 hover:border-white/20 hover:bg-white/[0.07]; }
-@utility card { @apply rounded-2xl border border-white/[0.07] bg-zinc-900/60 backdrop-blur-xl; }
-@utility icon-btn { @apply grid size-8 place-items-center rounded-lg text-zinc-400 transition hover:bg-white/10 hover:text-zinc-100; }
+@utility field { @apply h-9 w-full rounded-lg border border-field bg-card px-3 text-sm text-ink placeholder:text-ink-3 outline-none transition duration-150 ease-smooth hover:border-zinc-300 focus:border-accent focus:ring-2 focus:ring-accent/20; }
+@utility label { @apply mb-1.5 block text-xs text-ink-2; }
+@utility eyebrow { @apply text-[11px] font-medium uppercase tracking-[0.12em] text-ink-2; }
+@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition duration-150 ease-smooth active:scale-[.98] disabled:pointer-events-none disabled:opacity-40; }
+@utility btn-primary { @apply btn bg-linear-to-b from-accent-2 to-accent text-white shadow-[inset_0_1px_0_rgb(255_255_255/.2),0_1px_2px_rgb(24_24_27/.12)] hover:brightness-105; }
+@utility btn-ghost { @apply btn bg-zinc-100 text-ink hover:bg-zinc-200/70; }
+@utility btn-outline { @apply btn border border-line bg-card text-ink hover:bg-zinc-50; }
+@utility link { @apply text-ink-2 underline decoration-zinc-300 underline-offset-4 transition hover:text-ink hover:decoration-ink-3; }
+@utility card { @apply rounded-[14px] border border-line bg-card; }
+@utility icon-btn { @apply grid size-8 place-items-center rounded-lg text-ink-3 transition hover:bg-zinc-100 hover:text-ink; }
+@utility kv { @apply flex items-baseline justify-between gap-3 py-1.5 text-[13px] text-ink-2; }
+@utility nav-item { @apply flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] text-ink-2 transition hover:bg-zinc-100 hover:text-ink; }
 
-.fade-in { animation: fadeIn .35s var(--ease-smooth) both; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-.tab-panel[hidden] { display: none; }
-dialog::backdrop { background: rgb(0 0 0 / .6); backdrop-filter: blur(4px); }
-dialog[open] { animation: pop .25s var(--ease-smooth); }
-@keyframes pop { from { opacity: 0; transform: scale(.96); } }
+.cents { color: var(--color-ink-3); }
+.nav-item[aria-current="page"] { background: #ececef; color: var(--color-ink); font-weight: 500; }
+.nav-item[aria-current="page"] svg { color: var(--color-ink); }
+.fade-in { animation: fadeIn .3s var(--ease-smooth) both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.tab-panel[hidden], [data-rail][hidden] { display: none; }
+dialog::backdrop { background: rgb(24 24 27 / .35); backdrop-filter: blur(2px); }
+dialog[open] { animation: pop .2s var(--ease-smooth); }
+@keyframes pop { from { opacity: 0; transform: scale(.97); } }
+details > summary { list-style: none; }
+details > summary::-webkit-details-marker { display: none; }
+details[open] > summary .chev { transform: rotate(180deg); }
+.chev { transition: transform .2s var(--ease-smooth); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
 /* footer credit */
-.credit-link { position: relative; display: inline-flex; font-weight: 600; color: var(--color-zinc-200); text-decoration: none; padding-bottom: 2px; }
+.credit-link { position: relative; display: inline-flex; font-weight: 600; color: var(--color-ink); text-decoration: none; padding-bottom: 2px; }
 .credit-link span { display: inline-block; transition: transform .45s var(--ease-smooth), color .45s var(--ease-smooth); transition-delay: calc(var(--i) * 28ms); }
 .credit-link::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; border-radius: 2px;
-  background: linear-gradient(90deg, var(--color-teal-300), var(--color-indigo-400), var(--color-fuchsia-400), var(--color-teal-300));
+  background: linear-gradient(90deg, var(--color-accent), var(--color-indigo-500), var(--color-fuchsia-500), var(--color-accent));
   background-size: 300% 100%; transform: scaleX(0); transform-origin: left; transition: transform .5s var(--ease-smooth); }
 .credit-link:hover::after, .credit-link:focus-visible::after { transform: scaleX(1); animation: credit-flow 2.4s linear infinite; }
 .credit-link:hover span, .credit-link:focus-visible span { transform: translateY(-3px); animation: credit-hue 2.4s linear infinite; animation-delay: calc(var(--i) * -120ms); }
 .credit-link:focus-visible { outline: none; }
 @keyframes credit-flow { to { background-position: 300% 0; } }
 @keyframes credit-hue {
-  0%, 100% { color: var(--color-teal-300); }
-  33% { color: var(--color-indigo-300); }
-  66% { color: var(--color-fuchsia-300); }
+  0%, 100% { color: var(--color-accent); }
+  33% { color: var(--color-indigo-600); }
+  66% { color: var(--color-fuchsia-600); }
 }
 
 /* GitHub star button */
